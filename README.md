@@ -1,1 +1,1 @@
-# AI-Fictional-Story-Genrater
+# AI-fictional-story-generator

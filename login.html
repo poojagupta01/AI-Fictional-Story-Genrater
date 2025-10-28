@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotPilot - Login / Sign Up</title>
+    <link rel="stylesheet" href="auth-styles.css">
+</head>
+<body>
+    <div class="animated-bg"></div>
+    
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h1 class="auth-title">✨ PlotPilot AI ✨</h1>
+                <p class="auth-subtitle">Create Amazing Stories with AI</p>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="form-container active">
+                <h2 class="form-title">Welcome Back!</h2>
+                <p class="form-description">Log in to continue creating stories</p>
+                
+                <form id="login-form-element">
+                    <div class="input-group">
+                        <label for="login-username">
+                            <span class="emoji">👤</span> Username or Email
+                        </label>
+                        <input type="text" id="login-username" placeholder="Enter your username or email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="login-password">
+                            <span class="emoji">🔒</span> Password
+                        </label>
+                        <input type="password" id="login-password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div id="login-error" class="error-message" style="display: none;"></div>
+
+                    <button type="submit" class="auth-btn">
+                        <span class="btn-icon">🚀</span> Log In
+                    </button>
+                </form>
+
+                <div class="form-switch">
+                    <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+                </div>
+            </div>
+
+            <!-- Sign Up Form -->
+            <div id="signup-form" class="form-container">
+                <h2 class="form-title">Create Account</h2>
+                <p class="form-description">Join PlotPilot to start creating stories</p>
+                
+                <form id="signup-form-element">
+                    <div class="input-group">
+                        <label for="signup-username">
+                            <span class="emoji">👤</span> Username
+                        </label>
+                        <input type="text" id="signup-username" placeholder="Choose a username (min 3 characters)" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="signup-email">
+                            <span class="emoji">📧</span> Email
+                        </label>
+                        <input type="email" id="signup-email" placeholder="Enter your email address" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="signup-password">
+                            <span class="emoji">🔒</span> Password
+                        </label>
+                        <input type="password" id="signup-password" placeholder="Create a password (min 6 characters)" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="signup-confirm-password">
+                            <span class="emoji">🔒</span> Confirm Password
+                        </label>
+                        <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required>
+                    </div>
+
+                    <div id="signup-error" class="error-message" style="display: none;"></div>
+
+                    <button type="submit" class="auth-btn">
+                        <span class="btn-icon">✨</span> Create Account
+                    </button>
+                </form>
+
+                <div class="form-switch">
+                    <p>Already have an account? <a href="#" id="show-login">Log In</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h3>Why Choose PlotPilot?</h3>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-text">
+                    <h4>AI-Powered Creativity</h4>
+                    <p>Generate unique stories with advanced AI technology</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📚</div>
+                <div class="feature-text">
+                    <h4>Multiple Genres</h4>
+                    <p>Fantasy, Sci-Fi, Romance, Horror, and more</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-text">
+                    <h4>Instant Results</h4>
+                    <p>Get your story in seconds, not hours</p>
+                </div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💾</div>
+                <div class="feature-text">
+                    <h4>Save & Export</h4>
+                    <p>Download your stories as text files</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">Processing...</p>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+</body>
+</html>

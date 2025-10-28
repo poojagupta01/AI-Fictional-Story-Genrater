@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotPilot - AI Story Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-fantasy">
+    <div class="animated-bg"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1 class="title">✨ PlotPilot AI ✨</h1>
+                    <p class="subtitle">Create Amazing Stories with Artificial Intelligence</p>
+                </div>
+                <div class="user-menu">
+                    <span class="welcome-text">Welcome, <strong id="username-display">User</strong>!</span>
+                    <button id="logout-btn" class="logout-btn">🚪 Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="form-section">
+                    <h3 class="section-title">📝 Story Details</h3>
+                    
+                    <div class="input-group">
+                        <label for="character-name">
+                            <span class="emoji">👤</span> Character Name
+                        </label>
+                        <input type="text" id="character-name" placeholder="e.g., Alex Mercer, Luna Storm" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="theme">
+                            <span class="emoji">🎭</span> Theme
+                        </label>
+                        <select id="theme">
+                            <option value="Adventure">Adventure</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Horror">Horror</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Thriller">Thriller</option>
+                            <option value="Inspiration">Inspiration</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="genre">
+                            <span class="emoji">🌟</span> Genre
+                        </label>
+                        <select id="genre">
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Historical">Historical</option>
+                            <option value="Contemporary">Contemporary</option>
+                            <option value="Dystopian">Dystopian</option>
+                            <option value="Supernatural">Supernatural</option>
+                            <option value="Western">Western</option>
+                            <option value="Cyberpunk">Cyberpunk</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="location">
+                            <span class="emoji">📍</span> Location/Setting
+                        </label>
+                        <input type="text" id="location" placeholder="e.g., Ancient Rome, Mars Colony, Haunted Mansion" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="length">
+                            <span class="emoji">📏</span> Story Length
+                        </label>
+                        <select id="length">
+                            <option value="short">Short (500-800 words)</option>
+                            <option value="medium" selected>Medium (1000-1500 words)</option>
+                            <option value="long">Long (2000-3000 words)</option>
+                        </select>
+                    </div>
+
+                    <button id="generate-btn" class="generate-btn">
+                        <span class="btn-icon">🚀</span> Generate AI Story
+                    </button>
+
+                    <button id="reset-btn" class="reset-btn">
+                        🔄 Reset Form
+                    </button>
+                </div>
+            </aside>
+
+            <main class="story-display">
+                <div class="story-header">
+                    <h2>📖 Your AI-Generated Story</h2>
+                </div>
+                
+                <div id="story-content" class="story-content">
+                    <div class="placeholder">
+                        <div class="placeholder-icon">✨</div>
+                        <p class="placeholder-text">Your AI-generated story will appear here</p>
+                        <p class="placeholder-subtext">Fill in the details and click "Generate AI Story"</p>
+                    </div>
+                </div>
+
+                <div id="story-meta" class="story-meta" style="display: none;">
+                    <div class="meta-card">
+                        <div class="meta-icon">👤</div>
+                        <div class="meta-label">Character</div>
+                        <div class="meta-value" id="char-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">🎭</div>
+                        <div class="meta-label">Theme</div>
+                        <div class="meta-value" id="theme-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">🌟</div>
+                        <div class="meta-label">Genre</div>
+                        <div class="meta-value" id="genre-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">📍</div>
+                        <div class="meta-label">Location</div>
+                        <div class="meta-value" id="location-display">-</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="display: none;" id="action-buttons">
+                    <button id="copy-btn" class="action-btn copy-btn">
+                        📋 Copy Story
+                    </button>
+                    <button id="download-btn" class="action-btn download-btn">
+                        💾 Download as TXT
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">AI is crafting your story...</p>
+            <p class="loading-subtext">This may take 10-30 seconds</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
