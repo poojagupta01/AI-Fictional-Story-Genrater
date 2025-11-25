@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotPilot - AI Story Generator</title>
+
+    <!-- Optional: Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-gradient: radial-gradient(circle at top left, #151b3c 0, #050816 40%, #02010b 80%);
+            --accent: #7c5cff;
+            --accent-soft: rgba(124, 92, 255, 0.15);
+            --accent-strong: #ff8bd6;
+            --card-bg: rgba(8, 11, 30, 0.9);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --text-main: #f5f5ff;
+            --text-muted: #a0a3c5;
+            --danger: #ff5b6c;
+            --success: #3dd68c;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            padding: 24px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background ornaments */
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(124, 92, 255, 0.42), transparent 70%);
+            filter: blur(5px);
+            opacity: 0.7;
+            z-index: -2;
+        }
+
+        body::before {
+            top: -120px;
+            left: -80px;
+        }
+
+        body::after {
+            bottom: -160px;
+            right: -60px;
+            background: radial-gradient(circle at center, rgba(255, 139, 214, 0.4), transparent 70%);
+        }
+
+        .grid-noise {
+            pointer-events: none;
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+            background-size: 32px 32px;
+            mix-blend-mode: soft-light;
+            opacity: 0.6;
+            z-index: -1;
+        }
+
+        /* LAYOUT */
+        .app-shell {
+            width: 100%;
+            max-width: 1140px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* HEADER */
+        .header {
+            padding: 14px 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border-subtle);
+            background: linear-gradient(
+                        135deg,
+                        rgba(20, 24, 52, 0.95),
+                        rgba(10, 12, 34, 0.96)
+                       );
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 16px;
+            background: conic-gradient(from 180deg, #7c5cff, #ff8bd6, #4dd4ff, #7c5cff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #050816;
+            font-weight: 700;
+            font-size: 19px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .title {
+            font-size: 22px;
+            letter-spacing: 0.04em;
+        }
+
+        .title span {
+            font-weight: 300;
+            font-size: 13px;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .welcome-text strong {
+            color: var(--accent-strong);
+        }
+
+        .logout-btn {
+            border-radius: 999px;
+            padding: 7px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 91, 108, 0.08);
+            color: var(--danger);
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 91, 108, 0.18);
+            transform: translateY(-1px);
+        }
+
+        /* MAIN AREA */
+        .main-content {
+            display: grid;
+            grid-template-columns: minmax(0, 0.68fr) minmax(0, 1.32fr);
+            gap: 18px;
+        }
+
+        /* SIDEBAR / FORM */
+        .sidebar {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 18px 18px 20px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--text-muted);
+        }
+
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-pill {
+            margin-left: auto;
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: rgba(124, 92, 255, 0.13);
+            border: 1px solid rgba(124, 92, 255, 0.5);
+            color: var(--accent-strong);
+        }
+
+        .form-grid {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+        }
+
+        .label-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(3, 7, 25, 0.9);
+            color: var(--text-main);
+            font-size: 13px;
+            outline: none;
+            transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(160, 163, 197, 0.8);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(124, 92, 255, 0.45);
+            background: rgba(7, 10, 33, 0.98);
+        }
+
+        .button-row {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .generate-btn,
+        .reset-btn {
+            flex: 1;
+            border-radius: 999px;
+            border: none;
+            font-size: 13px;
+            padding: 9px 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: transform 0.08s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #7c5cff, #ff8bd6);
+            color: #0a0717;
+            box-shadow: 0 14px 32px rgba(124, 92, 255, 0.55);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 20px 40px rgba(124, 92, 255, 0.70);
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .helper-note {
+            margin-top: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* STORY AREA */
+        .story-display {
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 18px 20px 20px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .story-display::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(124, 92, 255, 0.22), transparent 60%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .story-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .story-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .story-tag {
+            font-size: 11px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--text-muted);
+        }
+
+        .story-content {
+            position: relative;
+            z-index: 1;
+            margin-top: 6px;
+            border-radius: 14px;
+            background: rgba(3, 7, 25, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 16px 14px;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .story-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .story-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.16);
+            border-radius: 10px;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 32px 12px;
+        }
+
+        .placeholder-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 18px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            background: var(--accent-soft);
+            border: 1px solid rgba(124, 92, 255, 0.55);
+        }
+
+        .placeholder-text {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .placeholder-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .story-meta {
+            position: relative;
+            z-index: 1;
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .meta-card {
+            border-radius: 10px;
+            padding: 8px 9px 9px;
+            background: rgba(5, 10, 30, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 11px;
+        }
+
+        .meta-icon {
+            font-size: 16px;
+            margin-bottom: 3px;
+        }
+
+        .meta-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-size: 10px;
+        }
+
+        .meta-value {
+            font-size: 12px;
+            margin-top: 1px;
+        }
+
+        .action-buttons {
+            position: relative;
+            z-index: 1;
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .action-btn {
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(0, 0, 0, 0.35);
+            color: var(--text-main);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(0, 0, 0, 0.55);
+            transform: translateY(-1px);
+        }
+
+        .copy-btn {
+            border-color: rgba(77, 212, 255, 0.45);
+        }
+
+        .download-btn {
+            border-color: rgba(61, 214, 140, 0.5);
+        }
+
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(8, 10, 30, 0.96), rgba(1, 1, 10, 0.98));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.08);
+            border-top-color: var(--accent-strong);
+            margin: 0 auto 12px;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .loading-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 980px) {
+            .main-content {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 16px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .story-meta {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .action-buttons {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 15px;
+            }
+            .title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-noise"></div>
+
+    <div class="app-shell">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="brand">
+                <div class="brand-logo">PP</div>
+                <div>
+                    <div class="title">
+                        PlotPilot AI
+                        <span>Story Studio • Intelligent Fiction Generator</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="user-menu">
+                <span class="welcome-text">
+                    Welcome, <strong id="username-display">User</strong>
+                </span>
+                <button id="logout-btn" class="logout-btn">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN -->
+        <div class="main-content">
+            <!-- SIDEBAR / FORM -->
+            <aside class="sidebar">
+                <div>
+                    <div class="section-label">Story configuration</div>
+                    <div class="section-title">
+                        Story Blueprint
+                        <span class="section-pill">AI powered</span>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="character-name" class="input-label">
+                            <span class="label-icon">👤</span>
+                            Character Name
+                        </label>
+                        <input type="text" id="character-name"
+                               placeholder="e.g., Alex Mercer, Luna Storm" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="theme" class="input-label">
+                            <span class="label-icon">🎭</span>
+                            Theme
+                        </label>
+                        <select id="theme">
+                            <option value="Adventure">Adventure</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Horror">Horror</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Thriller">Thriller</option>
+                            <option value="Inspiration">Inspiration</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="genre" class="input-label">
+                            <span class="label-icon">🌟</span>
+                            Genre
+                        </label>
+                        <select id="genre">
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Historical">Historical</option>
+                            <option value="Contemporary">Contemporary</option>
+                            <option value="Dystopian">Dystopian</option>
+                            <option value="Supernatural">Supernatural</option>
+                            <option value="Western">Western</option>
+                            <option value="Cyberpunk">Cyberpunk</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="location" class="input-label">
+                            <span class="label-icon">📍</span>
+                            Location / Setting
+                        </label>
+                        <input type="text" id="location"
+                               placeholder="e.g., Ancient Rome, Mars Colony, Haunted Mansion" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="length" class="input-label">
+                            <span class="label-icon">📏</span>
+                            Story Length
+                        </label>
+                        <select id="length">
+                            <option value="short">Short (500–800 words)</option>
+                            <option value="medium" selected>Medium (1000–1500 words)</option>
+                            <option value="long">Long (2000–3000 words)</option>
+                        </select>
+                    </div>
+
+                    <div class="button-row">
+                        <button id="generate-btn" class="generate-btn">
+                            🚀 Generate AI Story
+                        </button>
+
+                        <button id="reset-btn" class="reset-btn">
+                            🔄 Reset
+                        </button>
+                    </div>
+
+                    <p class="helper-note">
+                        Tip: Give a unique character name and interesting setting for more creative stories.
+                    </p>
+                </div>
+            </aside>
+
+            <!-- STORY AREA -->
+            <main class="story-display">
+                <div class="story-header">
+                    <h2>📖 Your AI-Generated Story</h2>
+                    <span class="story-tag">Live · Powered by PlotPilot</span>
+                </div>
+
+                <div id="story-content" class="story-content">
+                    <div class="placeholder">
+                        <div class="placeholder-icon">✨</div>
+                        <p class="placeholder-text">Your AI-generated story will appear here</p>
+                        <p class="placeholder-subtext">
+                            Fill in the blueprint on the left and click “Generate AI Story”.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="story-meta" class="story-meta" style="display: none;">
+                    <div class="meta-card">
+                        <div class="meta-icon">👤</div>
+                        <div class="meta-label">Character</div>
+                        <div class="meta-value" id="char-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">🎭</div>
+                        <div class="meta-label">Theme</div>
+                        <div class="meta-value" id="theme-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">🌟</div>
+                        <div class="meta-label">Genre</div>
+                        <div class="meta-value" id="genre-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">📍</div>
+                        <div class="meta-label">Location</div>
+                        <div class="meta-value" id="location-display">-</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons" id="action-buttons" style="display: none;">
+                    <button id="copy-btn" class="action-btn copy-btn">
+                        📋 Copy Story
+                    </button>
+                    <button id="download-btn" class="action-btn download-btn">
+                        💾 Download as TXT
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">AI is crafting your story...</p>
+            <p class="loading-subtext">This may take a few seconds</p>
+        </div>
+    </div>
+
+    <!-- Your existing logic -->
+    <script src="script.js"></script>
+</body>
+</html>

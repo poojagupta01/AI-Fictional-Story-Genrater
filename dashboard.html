@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlotPilot - AI Story Generator</title>
+
+    <!-- Inline dashboard-style CSS -->
+    <style>
+        :root {
+            --bg: #050816;
+            --bg-alt: #020617;
+            --card-bg: rgba(15, 23, 42, 0.92);
+            --card-soft: rgba(15, 23, 42, 0.7);
+            --border-subtle: rgba(148, 163, 184, 0.4);
+            --accent: #6366f1;
+            --accent-soft: rgba(99, 102, 241, 0.18);
+            --accent-strong: #4f46e5;
+            --text-main: #e5e7eb;
+            --text-muted: #9ca3af;
+            --danger: #f97373;
+            --success: #22c55e;
+            --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.85);
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top left, rgba(129, 140, 248, 0.25), transparent 55%),
+                radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.25), transparent 55%),
+                linear-gradient(135deg, #020617 0%, #020617 45%, #020617 100%);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* Animated background sparkles */
+        .animated-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.15) 0, transparent 55%),
+                radial-gradient(circle at 80% 0%, rgba(244, 114, 182, 0.15) 0, transparent 55%),
+                radial-gradient(circle at 50% 100%, rgba(129, 140, 248, 0.18) 0, transparent 60%);
+            opacity: 0.9;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1240px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.94));
+            border-radius: 28px;
+            box-shadow: var(--shadow-soft);
+            padding: 22px 24px 24px;
+            border: 1px solid rgba(148, 163, 184, 0.45);
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* Header / top bar */
+        .header {
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.25), transparent 55%),
+                        radial-gradient(circle at bottom right, rgba(8, 47, 73, 0.45), transparent 55%),
+                        linear-gradient(110deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.92));
+            border: 1px solid rgba(129, 140, 248, 0.5);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .title {
+            font-size: 1.6rem;
+            letter-spacing: 0.04em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .title::before {
+            content: "";
+            width: 26px;
+            height: 26px;
+            border-radius: 999px;
+            border: 2px solid rgba(244, 244, 245, 0.85);
+            box-shadow: 0 0 22px rgba(129, 140, 248, 0.9);
+            background: radial-gradient(circle at 30% 30%, #e5e7eb, #6366f1);
+        }
+
+        .subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        .user-menu {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(129, 140, 248, 0.45);
+        }
+
+        .welcome-text {
+            font-size: 0.84rem;
+            color: var(--text-muted);
+        }
+
+        #username-display {
+            color: #f4f4f5;
+        }
+
+        .logout-btn {
+            border-radius: 999px;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.18s ease;
+        }
+
+        .logout-btn:hover {
+            background: rgba(30, 64, 175, 0.9);
+            color: #e5e7eb;
+            transform: translateY(-1px);
+        }
+
+        /* Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: 18px;
+            margin-top: 4px;
+        }
+
+        /* Sidebar / form */
+        .sidebar {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 16px 16px 18px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.7);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .section-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            margin-left: 8px;
+            background: linear-gradient(90deg, rgba(148, 163, 184, 0.6), transparent);
+            opacity: 0.7;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .emoji {
+            font-size: 1rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 10px;
+            border: 1px solid rgba(75, 85, 99, 0.9);
+            padding: 9px 10px;
+            font-size: 0.86rem;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.16s ease;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(148, 163, 184, 0.6);
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.4), 0 0 0 5px rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.98);
+        }
+
+        .generate-btn,
+        .reset-btn {
+            width: 100%;
+            border-radius: 999px;
+            border: none;
+            padding: 10px 14px;
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.18s ease;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: #f9fafb;
+            box-shadow: 0 12px 28px rgba(79, 70, 229, 0.6);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-1px) translateX(0.5px);
+            box-shadow: 0 14px 35px rgba(79, 70, 229, 0.85);
+        }
+
+        .reset-btn {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--text-muted);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.8);
+        }
+
+        .reset-btn:hover {
+            background: rgba(31, 41, 55, 0.9);
+            color: #e5e7eb;
+        }
+
+        .btn-icon {
+            font-size: 1rem;
+        }
+
+        /* Story display / right panel */
+        .story-display {
+            background: var(--card-soft);
+            border-radius: var(--radius-lg);
+            padding: 16px 16px 18px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.85);
+        }
+
+        .story-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+        }
+
+        .story-header h2 {
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .story-content {
+            background: radial-gradient(circle at top left, var(--accent-soft), transparent 60%),
+                        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.96));
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 14px 14px 16px;
+            min-height: 260px;
+            max-height: 420px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .story-content::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        .story-content::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.98);
+            border-radius: 999px;
+        }
+
+        .story-content::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.9);
+            border-radius: 999px;
+        }
+
+        .placeholder {
+            text-align: center;
+            padding: 20px 16px;
+            color: var(--text-muted);
+        }
+
+        .placeholder-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px dashed rgba(129, 140, 248, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 1.4rem;
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.7);
+        }
+
+        .placeholder-text {
+            font-size: 0.96rem;
+            margin-bottom: 4px;
+            color: #e5e7eb;
+        }
+
+        .placeholder-subtext {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        #story-content p {
+            line-height: 1.55;
+            font-size: 0.9rem;
+            color: #e5e7eb;
+            margin-bottom: 10px;
+        }
+
+        /* Meta cards below story */
+        .story-meta {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .meta-card {
+            background: rgba(15, 23, 42, 0.98);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            border: 1px solid rgba(55, 65, 81, 0.95);
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .meta-icon {
+            font-size: 0.9rem;
+        }
+
+        .meta-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .meta-value {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #e5e7eb;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .action-btn {
+            border-radius: 999px;
+            border: 1px solid rgba(55, 65, 81, 0.95);
+            background: rgba(15, 23, 42, 0.98);
+            font-size: 0.8rem;
+            padding: 7px 11px;
+            cursor: pointer;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(31, 41, 55, 0.95);
+            color: #e5e7eb;
+            transform: translateY(-0.5px);
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.88);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+
+        .loading-content {
+            background: rgba(15, 23, 42, 0.98);
+            padding: 18px 26px;
+            border-radius: 18px;
+            border: 1px solid rgba(129, 140, 248, 0.65);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 3px solid rgba(148, 163, 184, 0.4);
+            border-top-color: var(--accent);
+            animation: spin 0.7s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 0.92rem;
+        }
+
+        .loading-subtext {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 980px) {
+            .main-content {
+                grid-template-columns: minmax(0, 1fr);
+            }
+
+            .sidebar {
+                order: 1;
+            }
+
+            .story-display {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 16px;
+            }
+
+            .container {
+                padding: 16px 14px 16px;
+                border-radius: 18px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .user-menu {
+                align-self: stretch;
+                justify-content: space-between;
+            }
+
+            .story-meta {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.25rem;
+            }
+
+            .story-content {
+                max-height: 360px;
+            }
+        }
+    </style>
+</head>
+
+<body class="theme-fantasy">
+    <div class="animated-bg"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1 class="title">✨ PlotPilot AI ✨</h1>
+                    <p class="subtitle">Create Amazing Stories with Artificial Intelligence</p>
+                </div>
+                <div class="user-menu">
+                    <span class="welcome-text">Welcome, <strong id="username-display">User</strong>!</span>
+                    <button id="logout-btn" class="logout-btn">🚪 Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Sidebar / dashboard controls -->
+            <aside class="sidebar">
+                <div class="form-section">
+                    <h3 class="section-title">📝 Story Details</h3>
+                    
+                    <div class="input-group">
+                        <label for="character-name">
+                            <span class="emoji">👤</span> Character Name
+                        </label>
+                        <input type="text" id="character-name" placeholder="e.g., Alex Mercer, Luna Storm" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="theme">
+                            <span class="emoji">🎭</span> Theme
+                        </label>
+                        <select id="theme">
+                            <option value="Adventure">Adventure</option>
+                            <option value="Mystery">Mystery</option>
+                            <option value="Romance">Romance</option>
+                            <option value="Horror">Horror</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Drama">Drama</option>
+                            <option value="Thriller">Thriller</option>
+                            <option value="Inspiration">Inspiration</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="genre">
+                            <span class="emoji">🌟</span> Genre
+                        </label>
+                        <select id="genre">
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Sci-Fi">Sci-Fi</option>
+                            <option value="Historical">Historical</option>
+                            <option value="Contemporary">Contemporary</option>
+                            <option value="Dystopian">Dystopian</option>
+                            <option value="Supernatural">Supernatural</option>
+                            <option value="Western">Western</option>
+                            <option value="Cyberpunk">Cyberpunk</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="location">
+                            <span class="emoji">📍</span> Location/Setting
+                        </label>
+                        <input type="text" id="location" placeholder="e.g., Ancient Rome, Mars Colony, Haunted Mansion" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="length">
+                            <span class="emoji">📏</span> Story Length
+                        </label>
+                        <select id="length">
+                            <option value="short">Short (500-800 words)</option>
+                            <option value="medium" selected>Medium (1000-1500 words)</option>
+                            <option value="long">Long (2000-3000 words)</option>
+                        </select>
+                    </div>
+
+                    <button id="generate-btn" class="generate-btn">
+                        <span class="btn-icon">🚀</span> Generate AI Story
+                    </button>
+
+                    <button id="reset-btn" class="reset-btn">
+                        🔄 Reset Form
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main dashboard panel -->
+            <main class="story-display">
+                <div class="story-header">
+                    <h2>📖 Your AI-Generated Story</h2>
+                </div>
+                
+                <div id="story-content" class="story-content">
+                    <div class="placeholder">
+                        <div class="placeholder-icon">✨</div>
+                        <p class="placeholder-text">Your AI-generated story will appear here</p>
+                        <p class="placeholder-subtext">Fill in the details on the left and click “Generate AI Story”</p>
+                    </div>
+                </div>
+
+                <div id="story-meta" class="story-meta" style="display: none;">
+                    <div class="meta-card">
+                        <div class="meta-icon">👤</div>
+                        <div class="meta-label">Character</div>
+                        <div class="meta-value" id="char-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">🎭</div>
+                        <div class="meta-label">Theme</div>
+                        <div class="meta-value" id="theme-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">🌟</div>
+                        <div class="meta-label">Genre</div>
+                        <div class="meta-value" id="genre-display">-</div>
+                    </div>
+                    <div class="meta-card">
+                        <div class="meta-icon">📍</div>
+                        <div class="meta-label">Location</div>
+                        <div class="meta-value" id="location-display">-</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="display: none;" id="action-buttons">
+                    <button id="copy-btn" class="action-btn copy-btn">
+                        📋 Copy Story
+                    </button>
+                    <button id="download-btn" class="action-btn download-btn">
+                        💾 Download as TXT
+                    </button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Loading overlay (hide/show via JS) -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p class="loading-text">AI is crafting your story...</p>
+            <p class="loading-subtext">This may take 10-30 seconds</p>
+        </div>
+    </div>
+
+    <!-- Keep your existing JS logic here -->
+    <script src="script.js"></script>
+</body>
+</html>
