@@ -1,687 +1,274 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PlotPilot - Login / Sign Up</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Welcome to Student Portal — Login / Signup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1e88e5;
+    --bg:#eef4ff;
+    --card:#fff;
+    --muted:#6b7280;
+    --nav-width: 260px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:Inter,system-ui,Arial,sans-serif;
+    background:linear-gradient(180deg,#f8fbff,#eef4ff);
+    color:#111827;
+  }
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  /* HEADER */
+  header{
+    position:fixed;
+    left:0;right:0;top:0;
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:0 18px;
+    background:rgba(255,255,255,0.75);
+    backdrop-filter: blur(6px);
+    border-bottom:1px solid rgba(2,6,23,0.06);
+    z-index:40;
+  }
+  .left{
+    display:flex;align-items:center;gap:12px;
+  }
+  .hamburger{
+    width:44px;height:44px;border-radius:10px;border:none;background:transparent;cursor:pointer;
+    display:grid;place-items:center;font-size:20px;
+  }
+  .logo-text{font-weight:700;color:var(--accent);font-size:18px}
+  nav.desktop{display:flex;gap:14px;align-items:center}
+  nav.desktop a{color:#213042;text-decoration:none;padding:8px 10px;border-radius:8px;font-size:14px}
+  nav.desktop a.active{color:var(--accent);font-weight:700}
+  .login-btn{background:linear-gradient(90deg,var(--accent),#63a3ff);color:white;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:700}
 
-    <style>
-        :root {
-            --bg1: #eef2ff;
-            --bg2: #e0f2fe;
-            --accent: #4f46e5;
-            --accent-2: #0ea5e9;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #6b7280;
-            --danger: #dc2626;
-            --border-subtle: #e5e7eb;
-        }
+  /* SIDEBAR (hidden by default) */
+  .sidebar-wrap{
+    position:fixed;inset:0;z-index:50;pointer-events:none;
+  }
+  .overlay{
+    position:absolute;inset:0;background:rgba(6,10,18,0.38);
+    opacity:0;transition:opacity .22s ease;pointer-events:none;
+  }
+  .sidebar{
+    position:absolute;left:0;top:0;bottom:0;
+    width:var(--nav-width);
+    background:linear-gradient(180deg,white,#fbfdff);
+    box-shadow: 12px 20px 50px rgba(8,12,20,0.12);
+    transform:translateX(-120%);
+    transition:transform .28s cubic-bezier(.2,.9,.2,1);
+    padding:18px;
+    pointer-events:auto;
+    overflow:auto;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .overlay.open{opacity:1;pointer-events:auto}
 
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-        }
+  .sidebar .close{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;
+  }
+  .sidebar h3{margin:0;font-size:16px;color:#0b1726}
+  .close button{background:transparent;border:none;font-size:20px;cursor:pointer}
 
-        body {
-            min-height: 100vh;
-            font-family: "Inter", system-ui, sans-serif;
-            background: radial-gradient(circle at top left, var(--bg2) 0, var(--bg1) 40%, #ffffff 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            color: var(--text-main);
-        }
+  .side-links{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .side-links a{
+    display:block;padding:10px 12px;border-radius:10px;color:#223046;text-decoration:none;font-weight:600;
+  }
+  .side-links a:hover{background:rgba(30,136,229,0.06);color:var(--accent)}
 
-        .page-wrapper {
-            width: 100%;
-            max-width: 1100px;
-            display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-            gap: 24px;
-            align-items: stretch;
-        }
+  /* MAIN LAYOUT */
+  .page{
+    padding:100px 20px 36px; /* space for header */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:calc(100vh - 100px);
+  }
+  .card{width:100%;max-width:880px;display:grid;grid-template-columns:1fr 420px;gap:20px;border-radius:12px;overflow:hidden;box-shadow:0 14px 40px rgba(2,6,23,0.08)}
+  .hero{padding:48px;background:linear-gradient(135deg,#2b6df0 0%, #7aa7ff 62%);color:white;display:flex;flex-direction:column;justify-content:center;gap:12px}
+  .hero h1{margin:0;font-size:40px;font-weight:800;line-height:1}
+  .hero p{margin:0;font-size:18px;opacity:0.95}
+  .form-area{background:var(--card);padding:34px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+  .form-area h2{margin:0 0 6px 0;font-size:20px;color:#0f1724}
+  .form-area .sub{font-size:13px;color:var(--muted);margin-bottom:8px}
+  label{display:block;font-size:13px;color:var(--muted);margin:10px 0 6px}
+  input[type="email"], input[type="password"]{width:100%;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:15px;outline:none}
+  input::placeholder{color:#9aa6bf}
+  .actions{display:flex;gap:10px;margin-top:14px}
+  .btn{flex:1;padding:11px 14px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-size:15px}
+  .btn-primary{background:var(--accent);color:white}
+  .btn-primary:hover{background:#1769c0}
+  .btn-ghost{background:#f3f6fb;color:var(--accent);border:1px solid #e8f0ff}
+  .links{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:14px}
+  .link{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:600}
+  .muted{color:var(--muted);font-size:13px}
+  #message{margin-top:12px;font-size:14px}
 
-        /* LEFT PANEL */
-        .info-panel {
-            background: linear-gradient(135deg, #e0f2fe, #eef2ff);
-            border-radius: 24px;
-            padding: 24px 22px 22px;
-            border: 1px solid #dbeafe;
-            box-shadow: 0 18px 40px rgba(148, 163, 184, 0.35);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .logo-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 12px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .logo-mark {
-            width: 24px;
-            height: 24px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 13px;
-        }
-
-        .info-title {
-            font-size: 26px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .info-title span {
-            color: var(--accent);
-        }
-
-        .info-subtitle {
-            font-size: 14px;
-            color: var(--text-muted);
-            max-width: 420px;
-        }
-
-        .info-list {
-            margin-top: 18px;
-            display: grid;
-            gap: 10px;
-        }
-
-        .info-item {
-            display: flex;
-            gap: 10px;
-            align-items: flex-start;
-        }
-
-        .info-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        .info-text h4 {
-            font-size: 13px;
-            margin-bottom: 2px;
-        }
-
-        .info-text p {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .info-image-wrapper {
-            margin-top: 20px;
-            border-radius: 18px;
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
-        }
-
-        .info-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .info-footer {
-            margin-top: 16px;
-            font-size: 11px;
-            color: var(--text-muted);
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        /* RIGHT PANEL - AUTH CARD */
-        .auth-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            padding: 24px 22px 22px;
-            border: 1px solid var(--border-subtle);
-            box-shadow: 0 18px 40px rgba(148, 163, 184, 0.4);
-        }
-
-        .auth-header {
-            margin-bottom: 16px;
-        }
-
-        .auth-title {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .auth-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .tab-row {
-            display: flex;
-            gap: 8px;
-            margin: 14px 0 18px;
-            font-size: 13px;
-        }
-
-        .tab-pill {
-            flex: 1;
-            text-align: center;
-            padding: 8px 10px;
-            border-radius: 999px;
-            border: 1px solid #e5e7eb;
-            background: #f9fafb;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .tab-pill.active {
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            color: #ffffff;
-            border-color: transparent;
-        }
-
-        .form-container {
-            display: none;
-            animation: fadeUp 0.3s ease forwards;
-        }
-
-        .form-container.active {
-            display: block;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .form-title {
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-        .form-description {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 14px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            font-size: 13px;
-        }
-
-        .input-group label {
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .emoji {
-            font-size: 16px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 9px 11px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            background: #f9fafb;
-            font-size: 13px;
-            color: var(--text-main);
-            outline: none;
-            transition: border 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-        }
-
-        input::placeholder {
-            color: #9ca3af;
-        }
-
-        input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.25);
-            background: #ffffff;
-        }
-
-        .auth-btn {
-            margin-top: 6px;
-            width: 100%;
-            border-radius: 999px;
-            border: none;
-            padding: 10px 14px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-2));
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            box-shadow: 0 12px 25px rgba(79, 70, 229, 0.35);
-        }
-
-        .auth-btn:hover {
-            box-shadow: 0 16px 35px rgba(79, 70, 229, 0.45);
-        }
-
-        .btn-icon {
-            font-size: 16px;
-        }
-
-        .form-switch {
-            margin-top: 10px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .form-switch a {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .form-switch a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            margin-top: 4px;
-            font-size: 12px;
-            color: var(--danger);
-            padding: 6px 8px;
-            border-radius: 8px;
-            background: #fee2e2;
-            border: 1px solid #fecaca;
-            display: none;
-        }
-
-        /* Loading overlay */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.2);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-        }
-
-        .loading-card {
-            background: #ffffff;
-            padding: 14px 18px;
-            border-radius: 12px;
-            box-shadow: 0 18px 40px rgba(148, 163, 184, 0.6);
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-main);
-        }
-
-        .spinner {
-            width: 28px;
-            height: 28px;
-            border-radius: 999px;
-            border: 3px solid #e5e7eb;
-            border-top-color: var(--accent);
-            margin: 0 auto 8px;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 980px) {
-            .page-wrapper {
-                grid-template-columns: minmax(0, 1fr);
-                max-width: 640px;
-            }
-            .info-panel {
-                order: 2;
-            }
-        }
-
-        @media (max-width: 640px) {
-            body { padding: 16px; }
-            .info-image { height: 190px; }
-        }
-    </style>
+  /* responsive */
+  @media (max-width:900px){
+    .card{grid-template-columns:1fr;max-width:760px}
+    nav.desktop{display:none}
+    .page{padding:80px 12px 24px}
+  }
+</style>
 </head>
 <body>
 
-    <div class="page-wrapper">
-        <!-- LEFT: Illustration + Info -->
-        <section class="info-panel">
-            <div>
-                <div class="logo-pill">
-                    <div class="logo-mark">PP</div>
-                    PlotPilot • Story Studio
-                </div>
-
-                <h1 class="info-title">
-                    Turn ideas into <span>ready-to-read</span> stories.
-                </h1>
-                <p class="info-subtitle">
-                    PlotPilot helps you build characters, worlds and plots in a few clicks.
-                    Perfect for novels, short stories, scripts, or just having fun with imagination.
-                </p>
-
-                <div class="info-list">
-                    <div class="info-item">
-                        <div class="info-icon">🧠</div>
-                        <div class="info-text">
-                            <h4>Smart AI Story Engine</h4>
-                            <p>Provide a name, theme and setting – PlotPilot completes the rest.</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">🎯</div>
-                        <div class="info-text">
-                            <h4>Any mood, any genre</h4>
-                            <p>From cosy romance to dark horror, pick the feeling you want.</p>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon">💾</div>
-                        <div class="info-text">
-                            <h4>Save your stories</h4>
-                            <p>Download drafts as text files and build your personal library.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <div class="info-image-wrapper">
-                    <!-- Replace this image URL if you have your own -->
-                    <img class="info-image"
-                         src="https://images.pexels.com/photos/6325966/pexels-photo-6325966.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                         alt="People writing stories on laptops">
-                </div>
-                <div class="info-footer">
-                    <span>✨ No writing experience needed</span>
-                    <span>⏱ Stories generated in seconds</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- RIGHT: Auth Card -->
-        <section class="auth-card">
-            <div class="auth-header">
-                <h2 class="auth-title">Sign in to PlotPilot</h2>
-                <p class="auth-subtitle">Access your story workspace and continue where you stopped.</p>
-            </div>
-
-            <div class="tab-row">
-                <div class="tab-pill active" id="tab-login">Log In</div>
-                <div class="tab-pill" id="tab-signup">Sign Up</div>
-            </div>
-
-            <!-- Login Form -->
-            <div id="login-form" class="form-container active">
-                <h3 class="form-title">Welcome back 👋</h3>
-                <p class="form-description">Enter your details to continue creating stories.</p>
-                
-                <form id="login-form-element">
-                    <div class="input-group">
-                        <label for="login-username">
-                            <span class="emoji">👤</span> Username or Email
-                        </label>
-                        <input type="text" id="login-username" placeholder="Enter your username or email" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="login-password">
-                            <span class="emoji">🔒</span> Password
-                        </label>
-                        <input type="password" id="login-password" placeholder="Enter your password" required>
-                    </div>
-
-                    <div id="login-error" class="error-message"></div>
-
-                    <button type="submit" class="auth-btn">
-                        <span class="btn-icon">🚀</span> Log In
-                    </button>
-                </form>
-
-                <div class="form-switch">
-                    <p>New to PlotPilot? <a href="#" id="show-signup">Create an account</a></p>
-                </div>
-            </div>
-
-            <!-- Sign Up Form -->
-            <div id="signup-form" class="form-container">
-                <h3 class="form-title">Create your account ✨</h3>
-                <p class="form-description">It only takes a moment to set up your story space.</p>
-                
-                <form id="signup-form-element">
-                    <div class="input-group">
-                        <label for="signup-username">
-                            <span class="emoji">👤</span> Username
-                        </label>
-                        <input type="text" id="signup-username" placeholder="Choose a username (min 3 characters)" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="signup-email">
-                            <span class="emoji">📧</span> Email
-                        </label>
-                        <input type="email" id="signup-email" placeholder="Enter your email address" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="signup-password">
-                            <span class="emoji">🔒</span> Password
-                        </label>
-                        <input type="password" id="signup-password" placeholder="Create a password (min 6 characters)" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="signup-confirm-password">
-                            <span class="emoji">🔒</span> Confirm Password
-                        </label>
-                        <input type="password" id="signup-confirm-password" placeholder="Confirm your password" required>
-                    </div>
-
-                    <div id="signup-error" class="error-message"></div>
-
-                    <button type="submit" class="auth-btn">
-                        <span class="btn-icon">✨</span> Create Account
-                    </button>
-                </form>
-
-                <div class="form-switch">
-                    <p>Already have an account? <a href="#" id="show-login">Log in instead</a></p>
-                </div>
-            </div>
-        </section>
+  <!-- HEADER -->
+  <header>
+    <div class="left">
+      <button class="hamburger" id="menuBtn" aria-label="Open menu" aria-controls="sidebar" aria-expanded="false">☰</button>
+      
     </div>
+</header>
 
-    <!-- Loading overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="loading-card">
-            <div class="spinner"></div>
-            <div>Processing…</div>
+  <!-- SIDEBAR WRAPPER -->
+  <div class="sidebar-wrap" id="sidebarWrap" aria-hidden="true">
+    <div class="overlay" id="overlay" tabindex="-1"></div>
+
+    <aside class="sidebar" id="sidebar" role="dialog" aria-labelledby="sidebarTitle" aria-modal="true">
+      <div class="close">
+        <h3 id="sidebarTitle">Menu</h3>
+        <button id="closeBtn" aria-label="Close menu">✕</button>
+      </div>
+
+      <nav class="side-links" aria-label="Sidebar navigation">
+    <a href="login.html" data-action="login" class="nav-link active">LogIn</a>
+      <a href="home.html" data-action="home" class="nav-link active">Home</a>
+      <a href="courses.html" data-action="courses" class="nav-link">Courses</a>
+      <a href="attendence.html" data-action="attendance" class="nav-link">Attendance</a>
+      <a href="r" data-action="results" class="nav-link">Results</a>
+      <a href="dashboard.html" data-action="results" class="nav-link active">Dashboard</a>
+    
+    </aside>
+  </div>
+
+  <!-- MAIN PAGE CONTENT -->
+  <main class="page" id="main">
+    <div class="card" role="main">
+      <div class="hero">
+        <h1>Welcome to Student Portal</h1>
+        <p>Login and sign up</p>
+      </div>
+
+      <div class="form-area" role="form" aria-labelledby="signin-heading">
+        <h2 id="signin-heading">Login</h2>
+        <div class="sub">Please sign in with your email and password</div>
+
+        <label for="email">Email address</label>
+        <input id="email" type="email" placeholder="Enter email" autocomplete="username">
+
+        <label for="password">Password</label>
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" id="loginBtn">Login</button>
+          <button type="button" class="btn btn-ghost" id="signupBtn">Sign up</button>
         </div>
+
+        <div class="links" style="margin-top:10px">
+          <div class="muted">Forgot your password?</div>
+          <a class="link" id="resetLink">Reset</a>
+        </div>
+
+        <div id="message" class="muted"></div>
+      </div>
     </div>
+  </main>
 
-    <!-- Inline JS: handles tabs, sign up, login -->
-    <script>
-        // Elements
-        const tabLogin = document.getElementById('tab-login');
-        const tabSignup = document.getElementById('tab-signup');
-        const loginFormBox = document.getElementById('login-form');
-        const signupFormBox = document.getElementById('signup-form');
-        const showLoginLink = document.getElementById('show-login');
-        const showSignupLink = document.getElementById('show-signup');
+<script>
+  // Sidebar toggle
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebarWrap = document.getElementById('sidebarWrap');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeBtn');
 
-        const loginFormEl = document.getElementById('login-form-element');
-        const signupFormEl = document.getElementById('signup-form-element');
+  function openSidebar(){
+    sidebar.classList.add('open');
+    overlay.classList.add('open');
+    sidebarWrap.style.pointerEvents = 'auto';
+    sidebarWrap.setAttribute('aria-hidden','false');
+    menuBtn.setAttribute('aria-expanded','true');
+    // lock body scroll when sidebar open (mobile)
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('open');
+    sidebarWrap.style.pointerEvents = 'none';
+    sidebarWrap.setAttribute('aria-hidden','true');
+    menuBtn.setAttribute('aria-expanded','false');
+    document.body.style.overflow = '';
+  }
 
-        const loginError = document.getElementById('login-error');
-        const signupError = document.getElementById('signup-error');
+  menuBtn.addEventListener('click', openSidebar);
+  closeBtn.addEventListener('click', closeSidebar);
+  overlay.addEventListener('click', closeSidebar);
+  // close with Escape
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeSidebar(); });
 
-        const loadingOverlay = document.getElementById('loading-overlay');
+  // Keep focus accessibility: trap first focusable element when open (basic)
+  sidebar.addEventListener('keydown', (e) => {
+    if(e.key === 'Tab'){
+      const focusable = sidebar.querySelectorAll('a,button');
+      if(focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    }
+  });
 
-        // Helper: show/hide forms
-        function showLogin() {
-            loginFormBox.classList.add('active');
-            signupFormBox.classList.remove('active');
-            tabLogin.classList.add('active');
-            tabSignup.classList.remove('active');
-            loginError.style.display = 'none';
-            signupError.style.display = 'none';
-        }
+  // Demo auth logic (unchanged)
+  function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+  const STORAGE_KEY = 'demo_student';
+  if(!localStorage.getItem(STORAGE_KEY)){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ email: "student@example.com", password: "student123" }));
+  }
+  const emailEl = document.getElementById('email');
+  const pwEl = document.getElementById('password');
+  const msgEl = document.getElementById('message');
+  const loginBtn = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
+  const resetLink = document.getElementById('resetLink');
 
-        function showSignup() {
-            signupFormBox.classList.add('active');
-            loginFormBox.classList.remove('active');
-            tabSignup.classList.add('active');
-            tabLogin.classList.remove('active');
-            loginError.style.display = 'none';
-            signupError.style.display = 'none';
-        }
+  function showMessage(text, color){ msgEl.style.color = color || '#de3737'; msgEl.textContent = text; }
 
-        // Tab + link events
-        tabLogin.addEventListener('click', e => { e.preventDefault(); showLogin(); });
-        tabSignup.addEventListener('click', e => { e.preventDefault(); showSignup(); });
+  loginBtn.addEventListener('click', () => {
+    const email = emailEl.value.trim(); const pwd = pwEl.value.trim();
+    if(!email || !pwd){ showMessage('Please enter email and password', '#de3737'); return; }
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if(email === stored.email && pwd === stored.password){
+      showMessage('Login successful — redirecting...', 'green');
+      setTimeout(()=> window.location.href = 'home.html', 700);
+    } else { showMessage('Invalid email or password', '#de3737'); }
+  });
 
-        showLoginLink.addEventListener('click', e => { e.preventDefault(); showLogin(); });
-        showSignupLink.addEventListener('click', e => { e.preventDefault(); showSignup(); });
+  signupBtn.addEventListener('click', () => {
+    const email = emailEl.value.trim(); const pwd = pwEl.value.trim();
+    if(!email || !pwd){ showMessage('To sign up, enter an email and password above then click Sign up', '#de3737'); return; }
+    if(!isValidEmail(email)){ showMessage('Please enter a valid email address', '#de3737'); return; }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password: pwd }));
+    showMessage('Account created (demo). You can now Login.', 'green');
+  });
 
-        // Fake "database" in localStorage
-        function getUsers() {
-            const raw = localStorage.getItem('plotpilotUsers');
-            return raw ? JSON.parse(raw) : [];
-        }
+  resetLink.addEventListener('click', () => {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if(stored && stored.password){ alert('Demo account password: ' + stored.password); }
+    else { alert('No account found. Please sign up first.'); }
+  });
 
-        function saveUsers(users) {
-            localStorage.setItem('plotpilotUsers', JSON.stringify(users));
-        }
-
-        // Show loading overlay briefly
-        function showLoading(ms = 800) {
-            loadingOverlay.style.display = 'flex';
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    loadingOverlay.style.display = 'none';
-                    resolve();
-                }, ms);
-            });
-        }
-
-        // Sign Up handler
-        signupFormEl.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            signupError.style.display = 'none';
-            signupError.textContent = '';
-
-            const username = document.getElementById('signup-username').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-            if (username.length < 3) {
-                signupError.textContent = 'Username must be at least 3 characters.';
-                signupError.style.display = 'block';
-                return;
-            }
-            if (password.length < 6) {
-                signupError.textContent = 'Password must be at least 6 characters.';
-                signupError.style.display = 'block';
-                return;
-            }
-            if (password !== confirmPassword) {
-                signupError.textContent = 'Passwords do not match.';
-                signupError.style.display = 'block';
-                return;
-            }
-
-            const users = getUsers();
-            const existing = users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === email.toLowerCase());
-            if (existing) {
-                signupError.textContent = 'User with this username or email already exists.';
-                signupError.style.display = 'block';
-                return;
-            }
-
-            users.push({ username, email, password });
-            saveUsers(users);
-
-            await showLoading();
-
-            alert('Account created successfully! Please log in.');
-            showLogin();
-        });
-
-        // Login handler
-        loginFormEl.addEventListener('submit', async function (e) {
-            e.preventDefault();
-            loginError.style.display = 'none';
-            loginError.textContent = '';
-
-            const usernameOrEmail = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value;
-
-            const users = getUsers();
-            const user = users.find(
-                u =>
-                    (u.username.toLowerCase() === usernameOrEmail.toLowerCase() ||
-                     u.email.toLowerCase() === usernameOrEmail.toLowerCase()) &&
-                    u.password === password
-            );
-
-            if (!user) {
-                loginError.textContent = 'Invalid username/email or password.';
-                loginError.style.display = 'block';
-                return;
-            }
-
-            await showLoading();
-
-            // Save current user name for main page (you can read this in your story page)
-            localStorage.setItem('plotpilotUser', user.username);
-
-            // Redirect to your main story page
-            window.location.href = 'index.html';
-        });
-    </script>
+  // Close sidebar when clicking any sidebar link (improves UX on small screens)
+  document.querySelectorAll('.side-links a').forEach(a => a.addEventListener('click', closeSidebar));
+</script>
 </body>
 </html>

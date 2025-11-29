@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Portal – Home</title>
+  <link rel="stylesheet" href="courses.html">
+
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; font-family: system-ui, Arial, sans-serif; }
+    body{ background: radial-gradient(circle at top left, #eaf2ff, #f8faff); color:#1b1d2d; min-height:100vh; display:flex; flex-direction:column; }
+
+    /* NAVBAR */
+    header{
+      width:100%;
+      padding:14px 7%;
+      background:rgba(255,255,255,0.75);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid rgba(0,0,0,0.05);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:fixed;
+      top:0; left:0;
+      z-index:20;
+    }
+
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px; }
+    .brand-logo{ width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#4d8bff,#7683ff); display:flex; justify-content:center; align-items:center; color:white; font-weight:600; }
+
+    nav{ display:flex; gap:22px; font-size:14px; align-items:center; }
+    nav a{ text-decoration:none; color:#42445a; padding-bottom:6px; position:relative; padding:6px 4px; border-radius:6px; transition:background .12s, color .12s; }
+    nav a:hover{ background:rgba(77,139,255,0.06); color:#1b1e2f; }
+    nav a::after{ content:""; position:absolute; bottom:2px; left:0; height:2px; width:0; background:#4d8bff; transition:width .18s; border-radius:2px; }
+    nav a.active::after{ width:100%; }
+    nav a.active{ color:#1b1e2f; font-weight:600; background: rgba(77,139,255,0.08); }
+
+    .btn{ padding:8px 18px; font-size:14px; border-radius:20px; cursor:pointer; text-decoration:none; border:none; }
+    .btn-outline{ background:transparent; border:1px solid #4d8bff; color:#4d8bff; }
+    .btn-primary{ background:#4d8bff; color:white; box-shadow:0 8px 18px rgba(77,139,255,0.3); }
+
+    /* ALERT MARQUEE */
+    .alert-bar { width:100%; background: linear-gradient(90deg,#4d8bff,#7683ff); color:#fff; padding:10px 0; margin-top:70px; overflow:hidden; position:relative; font-size:14px; font-weight:500; z-index:10; }
+    .alert-text { display:inline-block; white-space:nowrap; padding-left:100%; animation: scroll-left 16s linear infinite; }
+    @keyframes scroll-left { 0%{ transform: translateX(0);} 100%{ transform: translateX(-100%);} }
+    .alert-bar:hover .alert-text{ animation-play-state: paused; }
+
+    /* HERO SECTION */
+    .hero{ flex:1; padding:40px 7%; padding-top:140px; display:grid; grid-template-columns:1.2fr 1fr; align-items:center; gap:40px; }
+    .hero h1{ font-size:clamp(32px,4vw,44px); font-weight:700; line-height:1.1; color:#1b1e2f; margin-bottom:16px; }
+    .hero p{ max-width:500px; color:#60627a; font-size:15px; margin-bottom:22px; }
+
+    .hero-buttons{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+    .features{ display:grid; max-width:480px; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px; }
+    .f-card{ background:white; border-radius:14px; padding:16px; text-align:center; box-shadow:0 10px 24px rgba(0,0,0,0.04); }
+    .f-card h3{ font-size:20px; color:#1b1e2f; margin-bottom:6px; }
+    .f-card p{ font-size:12px; color:#777b8f; }
+
+    .mockup{ background:#101225; padding:20px; max-width:360px; border-radius:22px; color:#f4f6ff; box-shadow:0 22px 50px rgba(0,0,0,0.4); }
+    .mockup-header{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:14px; opacity:0.85; }
+    .mockup-body{ background:#1b1d34; border-radius:15px; padding:16px; }
+    .mockup-body h4{ margin-bottom:8px; font-size:16px; font-weight:600; }
+    .mockup-stats{ display:flex; gap:10px; margin-top:14px; }
+    .box{ flex:1; background:#2d2f4b; border-radius:12px; padding:12px; text-align:center; }
+
+    @media(max-width:900px){ .hero{ grid-template-columns:1fr; } nav{ display:none; } }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      Student Portal
+    </div>
+
+    <nav id="main-nav" aria-label="Main navigation">
+        <a href="login.html" data-action="login" class="nav-link active">LogIn</a>
+      <a href="home.html" data-action="home" class="nav-link active">Home</a>
+      <a href="courses.html" data-action="courses" class="nav-link">Courses</a>
+      <a href="attendence.html" data-action="attendance" class="nav-link">Attendance</a>
+      <a href="result.html" data-action="results" class="nav-link">Results</a>
+      <a href="dashboard.html" data-action="results" class="nav-link active">Dashboard</a>
+    </nav>
+
+    
+  </header>
+
+  <!-- ALERT MARQUEE -->
+  <div class="alert-bar" role="status" aria-live="polite">
+    <div class="alert-text">
+      🔔 Important Notice: Semester exams begin from 10th December. Hall tickets will be available from 3rd December. Please check your Student Portal regularly.
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <!-- LEFT SIDE -->
+    <div>
+      <h1>Welcome to Your Student Portal</h1>
+      <p>Access your courses, results, attendance and important notifications — all in one smart, simple dashboard.</p>
+
+      
+
+      <div class="features">
+        <div class="f-card"><h3>95%</h3><p>Attendance Tracking</p></div>
+        <div class="f-card"><h3>A+</h3><p>Grade Results</p></div>
+        <div class="f-card"><h3>24×7</h3><p>Portal Access</p></div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE MOCKUP -->
+    <div class="mockup">
+      <div class="mockup-header"><span>Student Dashboard</span><span>● ● ●</span></div>
+      <div class="mockup-body">
+        <h4>Semester Overview</h4>
+        <div class="mockup-stats">
+          <div class="box"><strong>8</strong><br> Subjects</div>
+          <div class="box"><strong>92%</strong><br> Attendance</div>
+          <div class="box"><strong>7.9</strong><br> CGPA</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Nav behavior: toggles visual "active" and routes to login/dashboard
+    (function () {
+      const nav = document.getElementById('main-nav');
+      if (!nav) return;
+
+      // helper: read session in same way dashboard reads it
+      function readSession() {
+        const ls = localStorage.getItem('studentPortalSession');
+        if (ls) {
+          try { return JSON.parse(ls); } catch (e) { /* ignore */ }
+        }
+        const ss = sessionStorage.getItem('studentPortalSession');
+        if (ss) {
+          try { return JSON.parse(ss); } catch (e) { /* ignore */ }
+        }
+        const legacy = localStorage.getItem('plotpilotUser');
+        if (legacy) {
+          try {
+            const parsed = JSON.parse(legacy);
+            if (parsed && typeof parsed === 'object') {
+              return { username: parsed.username || parsed.name || parsed.email || '' };
+            }
+          } catch (e) {
+            return { username: legacy };
+          }
+        }
+        return null;
+      }
+
+      function setActive(el) {
+        nav.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
+        if (el) el.classList.add('active');
+      }
+
+      function handleAction(action) {
+        const session = readSession();
+
+        if (action === 'home') {
+          // visual feedback, scroll to top
+          setActive(nav.querySelector('[data-action="home"]'));
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+
+        // For other actions we prefer sending user to the dashboard.
+        // If not logged in, go to login page.
+        if (!session || !session.username) {
+          // Not signed in: go to login and optionally show message
+          // We add a query param so login page can redirect back after sign-in (optional if login supports it)
+          const loginUrl = 'login.html';
+          window.location.href = loginUrl;
+          return;
+        }
+
+        // If signed in: open dashboard and include hash to indicate which view to open
+        const viewMap = {
+          courses: 'subjects',
+          attendance: 'attendance',
+          results: 'results'
+        };
+        const hash = viewMap[action] ? '#' + viewMap[action] : '';
+        // set active immediately for UI feedback (even while redirecting)
+        setActive(nav.querySelector(`[data-action="${action}"]`));
+        // redirect to dashboard (index.html) with hash
+        window.location.href = 'index.html' + hash;
+      }
+
+      // Attach listeners
+      nav.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const action = link.getAttribute('data-action');
+          handleAction(action);
+        });
+      });
+
+      // If page loaded with a hash (e.g., index-frontend.html#courses) set the active link
+      (function setActiveFromHash() {
+        const h = (location.hash || '').replace('#', '');
+        const actionFromHash = h === 'subjects' ? 'courses' : (h || 'home');
+        const el = nav.querySelector(`[data-action="${actionFromHash}"]`);
+        if (el) setActive(el);
+      })();
+
+    })();
+  </script>
+
+</body>
+</html>

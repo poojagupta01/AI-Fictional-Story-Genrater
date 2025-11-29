@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Student Portal — Results</title>
+  <style>
+    :root{
+      --accent:#2456d9;
+      --accent-2:#3e7bff;
+      --bg-start:#eaf2ff;
+      --bg-end:#f8faff;
+      --glass: rgba(255,255,255,0.92);
+      --muted:#6b7082;
+      --text:#0f1330;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Arial,sans-serif}
+    html,body{height:100%}
+    body{
+      min-height:100vh;
+      background:radial-gradient(circle at top left,var(--bg-start),var(--bg-end));
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* SITE HEADER + NAV */
+    header.site-header{
+      width:100%;
+      position:fixed;
+      top:0;
+      left:0;
+      z-index:80;
+      background:linear-gradient(180deg, rgba(255,255,255,0.94), rgba(250,252,255,0.88));
+      padding:12px 6%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid rgba(16,18,37,0.04);
+      backdrop-filter: blur(6px);
+    }
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
+    .brand .logo{
+      width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;font-weight:800;
+      box-shadow:0 8px 22px rgba(62,123,255,0.14)
+    }
+
+    nav#main-nav{display:flex;align-items:center;gap:18px}
+    nav#main-nav a{
+      text-decoration:none;color:var(--text);font-weight:600;padding:8px 10px;border-radius:8px;transition:all .16s;
+    }
+    nav#main-nav a:hover{background:rgba(16,18,37,0.03)}
+    nav#main-nav a.active{color:var(--accent);border-bottom:3px solid var(--accent);padding-bottom:6px}
+
+    /* hamburger for mobile */
+    .hamburger{display:none;background:transparent;border:0;padding:8px;border-radius:8px;cursor:pointer}
+    .hamburger svg{width:22px;height:22px}
+
+    /* PAGE WRAP */
+    .page-wrap{width:100%;max-width:1100px;margin:0 auto;padding:140px 3% 80px;flex:1}
+
+    /* CARD */
+    .card{
+      border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.98),#fbfdff);
+      box-shadow:0 30px 80px rgba(16,18,37,0.08);
+      padding:22px;
+      border:1px solid rgba(16,18,37,0.04);
+    }
+
+    /* header row inside card */
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .title{display:flex;flex-direction:column}
+    .title h1{font-size:20px;margin-bottom:4px}
+    .title p{font-size:13px;color:var(--muted)}
+
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    select,input[type="search"],button{
+      padding:8px 12px;border-radius:10px;border:1px solid rgba(16,18,37,0.06);background:white;font-size:13px;
+    }
+    .btn-primary{
+      background:linear-gradient(90deg,var(--accent),var(--accent-2));
+      color:white;border:none;cursor:pointer;padding:9px 14px;border-radius:10px;box-shadow:0 8px 22px rgba(62,123,255,0.12)
+    }
+    .btn-ghost{background:transparent;border:1px solid rgba(16,18,37,0.06);cursor:pointer;padding:8px 12px;border-radius:10px}
+
+    /* layout: summary + details */
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+    @media(max-width:980px){ .layout{grid-template-columns:1fr} }
+
+    /* summary */
+    .summary{
+      background:var(--glass);padding:16px;border-radius:12px;border:1px solid rgba(16,18,37,0.04);
+      box-shadow:0 18px 40px rgba(16,18,37,0.04);
+    }
+    .gpa{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;box-shadow:0 12px 30px rgba(62,123,255,0.14)}
+    .gpa .value{font-size:36px;font-weight:800}
+    .meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+    .meta .m{background:white;padding:10px;border-radius:10px;text-align:center;box-shadow:0 8px 18px rgba(16,18,37,0.04)}
+    .m strong{display:block;font-size:18px}
+    .m small{color:var(--muted)}
+
+    /* details */
+    .details{background:var(--glass);padding:14px;border-radius:12px;border:1px solid rgba(16,18,37,0.04);box-shadow:0 18px 40px rgba(16,18,37,0.04)}
+    .details h3{margin-bottom:10px}
+    .table{width:100%;border-collapse:collapse}
+    .table thead th{font-size:13px;text-align:left;padding:10px 8px;color:var(--muted);border-bottom:1px solid rgba(16,18,37,0.06)}
+    .table tbody tr{background:white;border-radius:8px;box-shadow:0 6px 18px rgba(16,18,37,0.04);margin-bottom:10px}
+    .table tbody td{padding:12px 8px;vertical-align:middle;border-bottom:1px solid rgba(16,18,37,0.02)}
+    .grade{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700}
+    .grade.A{background:linear-gradient(90deg,#39b54a,#2ea34a);color:white}
+    .grade.B{background:linear-gradient(90deg,#ffd166,#ffb347);color:#3e2b00}
+    .grade.C{background:linear-gradient(90deg,#ff7b7b,#ff5252);color:white}
+    .credits{font-size:13px;color:var(--muted)}
+    .marks{font-weight:700}
+
+    .progressbar{width:220px;height:10px;background:#eef4ff;border-radius:999px;overflow:hidden}
+    .progress{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px;transition:width 700ms ease}
+
+    .note{font-size:13px;color:var(--muted);margin-top:12px;text-align:right}
+
+    .table tbody tr:hover{transform:translateY(-6px);transition:transform .18s;box-shadow:0 20px 40px rgba(16,18,37,0.06)}
+
+    @media(max-width:720px){
+      .table thead{display:none}
+      .table tbody td{display:block;padding:10px}
+      .table tbody tr{display:block}
+      .progressbar{width:100%}
+    }
+
+    /* mobile tweaks */
+    @media(max-width:960px){
+      nav#main-nav{display:none}
+      .hamburger{display:inline-flex}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER + NAV -->
+  <header class="site-header" role="banner">
+    <div class="brand" aria-hidden="false">
+      <div class="logo" aria-hidden="true">S</div>
+      <div>
+        <div>Student Portal</div>
+        <div style="font-size:12px;color:var(--muted)">Welcome back</div>
+      </div>
+    </div>
+
+     <nav id="main-nav" aria-label="Main navigation">
+        <a href="login.html" data-action="login" class="nav-link">LogIn</a>
+        <a href="home.html" data-action="home" class="nav-link active">Home</a>
+        <a href="courses.html" data-action="courses" class="nav-link">Courses</a>
+        <a href="attendance.html" data-action="attendance" class="nav-link">Attendance</a>
+        <a href="result.html" data-action="results" class="nav-link">Results</a>
+        <a href="dashboard.html" data-action="dashboard" class="nav-link">Dashboard</a>
+    </nav>
+
+    <button class="hamburger" id="hambtn" aria-label="Open navigation" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7h18M3 12h18M3 17h18" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- PAGE CONTENT -->
+  <div class="page-wrap" role="main">
+    <main class="card" aria-labelledby="pageTitle">
+      <div class="top">
+        <div class="title">
+          <h1 id="pageTitle">Results — Semester Summary</h1>
+          <p>View grades, marks and cumulative GPA. Export or print your report.</p>
+        </div>
+
+        <div class="controls" role="toolbar" aria-label="Results controls">
+          <label for="semester" class="visually-hidden">Semester</label>
+          <select id="semester" aria-label="Select semester">
+            <option value="2025-s1">2025 - Semester 1</option>
+            <option value="2024-s2">2024 - Semester 2</option>
+            <option value="2024-s1">2024 - Semester 1</option>
+          </select>
+
+          <input id="search" type="search" placeholder="Search subject or instructor..." aria-label="Search results">
+          <button id="exportCSV" class="btn-primary" title="Export results as CSV">Export CSV</button>
+          <button id="print" class="btn-ghost" title="Print results">Print</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <!-- SUMMARY -->
+        <aside class="summary" aria-labelledby="summaryTitle">
+          <h2 id="summaryTitle" style="font-size:15px;margin-bottom:8px">Performance Summary</h2>
+
+          <div class="gpa" role="status" aria-live="polite">
+            <div style="font-size:13px;opacity:.95">Semester GPA</div>
+            <div class="value" id="gpaValue">7.9</div>
+            <div style="font-size:13px;opacity:.95">Scale: 10.0</div>
+          </div>
+
+          <div class="meta" aria-hidden="false">
+            <div class="m">
+              <strong id="cgpaVal">7.8</strong>
+              <small>CGPA</small>
+            </div>
+            <div class="m">
+              <strong id="rankVal">12</strong>
+              <small>Class Rank</small>
+            </div>
+            <div class="m">
+              <strong id="creditsVal">22</strong>
+              <small>Credits Earned</small>
+            </div>
+            <div class="m">
+              <strong id="statusVal">Passed</strong>
+              <small>Result Status</small>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+            <strong>Legend:</strong> <span style="display:inline-block;margin-left:6px">A — Excellent</span>,
+            <span style="margin-left:6px">B — Good</span>, <span style="margin-left:6px">C — Needs Improvement</span>
+          </div>
+        </aside>
+
+        <!-- DETAILS -->
+        <section class="details" aria-labelledby="detailsTitle">
+          <h3 id="detailsTitle">Subject Results</h3>
+
+          <table class="table" role="table" aria-label="Results table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Instructor</th>
+                <th>Credits</th>
+                <th>Marks (Out of)</th>
+                <th>Grade</th>
+                <th>Performance</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+
+          <div class="note">Note: Grades shown are provisional until the official transcript is published.</div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Sample results data — replace with API data
+      const resultsData = {
+        semester: '2025-s1',
+        gpa: 7.9,
+        cgpa: 7.8,
+        rank: 12,
+        credits: 22,
+        status: 'Passed',
+        subjects: [
+          { code:'CS101', title:'Introduction to Programming', instructor:'Dr. Meera Rao', credits:4, marks:88, outOf:100, grade:'A', percent:88 },
+          { code:'MATH110', title:'Discrete Mathematics', instructor:'Dr. L. Iyer', credits:3, marks:80, outOf:100, grade:'B', percent:80 },
+          { code:'DB201', title:'Database Systems', instructor:'Mr. Arun Patel', credits:3, marks:82, outOf:100, grade:'B', percent:82 },
+          { code:'WEB301', title:'Web Development', instructor:'Ms. Sneha Kumari', credits:3, marks:90, outOf:100, grade:'A', percent:90 },
+          { code:'ML401', title:'Machine Learning', instructor:'Dr. K. Sharma', credits:4, marks:79, outOf:100, grade:'B', percent:79 },
+          { code:'OS101', title:'Operating Systems', instructor:'Prof. R. Gupta', credits:3, marks:85, outOf:100, grade:'A', percent:85 },
+        ]
+      };
+
+      // Safe DOM helpers
+      function $id(id){ return document.getElementById(id); }
+      function safeSetText(id, text){ const el = $id(id); if(el) el.textContent = text; }
+
+      // render summary (guarded)
+      safeSetText('gpaValue', (resultsData.gpa || 0).toFixed(1));
+      safeSetText('cgpaVal', (resultsData.cgpa || 0).toFixed(1));
+      safeSetText('rankVal', resultsData.rank ?? '-');
+      safeSetText('creditsVal', resultsData.credits ?? '-');
+      safeSetText('statusVal', resultsData.status ?? '-');
+
+      // render subject rows
+      const tbody = $id('resultsBody');
+      function renderRows(list){
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        list.forEach(s => {
+          const tr = document.createElement('tr');
+
+          // create cells (use textContent for safety)
+          const td1 = document.createElement('td');
+          td1.style.minWidth = '220px';
+          const titleDiv = document.createElement('div'); titleDiv.style.fontWeight = '700'; titleDiv.textContent = s.title;
+          const codeDiv = document.createElement('div'); codeDiv.style.fontSize = '13px'; codeDiv.style.color = 'var(--muted)'; codeDiv.textContent = s.code;
+          td1.appendChild(titleDiv); td1.appendChild(codeDiv);
+
+          const td2 = document.createElement('td'); td2.style.minWidth = '160px'; td2.style.color = 'var(--muted)'; td2.textContent = s.instructor;
+          const td3 = document.createElement('td'); td3.className = 'credits'; td3.textContent = s.credits;
+          const td4 = document.createElement('td'); td4.className = 'marks'; td4.textContent = `${s.marks} / ${s.outOf}`;
+
+          const td5 = document.createElement('td');
+          const gradeSpan = document.createElement('span');
+          gradeSpan.className = 'grade ' + (s.grade || '');
+          gradeSpan.textContent = s.grade || '-';
+          td5.appendChild(gradeSpan);
+
+          const td6 = document.createElement('td');
+          const perfWrap = document.createElement('div');
+          perfWrap.style.display = 'flex';
+          perfWrap.style.flexDirection = 'column';
+          perfWrap.style.alignItems = 'flex-end';
+          perfWrap.style.gap = '6px';
+          const percentDiv = document.createElement('div');
+          percentDiv.style.fontWeight = '700';
+          percentDiv.textContent = Math.round(s.percent) + '%';
+          const barOuter = document.createElement('div'); barOuter.className = 'progressbar'; barOuter.setAttribute('aria-hidden','true');
+          const barInner = document.createElement('div'); barInner.className = 'progress';
+          // clamp width safely
+          const width = Math.max(0, Math.min(100, Number(s.percent) || 0));
+          barInner.style.width = width + '%';
+          barOuter.appendChild(barInner);
+          perfWrap.appendChild(percentDiv);
+          perfWrap.appendChild(barOuter);
+          td6.appendChild(perfWrap);
+
+          tr.appendChild(td1);
+          tr.appendChild(td2);
+          tr.appendChild(td3);
+          tr.appendChild(td4);
+          tr.appendChild(td5);
+          tr.appendChild(td6);
+
+          tbody.appendChild(tr);
+        });
+      }
+      renderRows(resultsData.subjects || []);
+
+      // search filter (guarded)
+      const searchEl = $id('search');
+      if(searchEl){
+        searchEl.addEventListener('input', () => {
+          const q = (searchEl.value || '').trim().toLowerCase();
+          const filtered = (resultsData.subjects || []).filter(s => {
+            return (s.title || '').toLowerCase().includes(q) ||
+                   (s.instructor || '').toLowerCase().includes(q) ||
+                   (s.code || '').toLowerCase().includes(q);
+          });
+          renderRows(filtered);
+        });
+      }
+
+      // semester select (safe)
+      const semesterEl = $id('semester');
+      if(semesterEl){
+        semesterEl.addEventListener('change', (e) => {
+          const v = e.target.value;
+          // Demo behavior: reverse list when semester changes
+          if (v === resultsData.semester) return;
+          renderRows((resultsData.subjects || []).slice().reverse());
+        });
+      }
+
+      // Export CSV (safe)
+      const exportBtn = $id('exportCSV');
+      if(exportBtn){
+        exportBtn.addEventListener('click', () => {
+          const data = resultsData.subjects || [];
+          if(!data.length){
+            alert('No result data to export.');
+            return;
+          }
+          const rows = [['Code','Subject','Instructor','Credits','Marks','OutOf','Grade','Percent']];
+          data.forEach(r => rows.push([r.code, r.title, r.instructor, r.credits, r.marks, r.outOf, r.grade, r.percent]));
+          const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'results_semester.csv';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      // Print (safe)
+      const printBtn = $id('print');
+      if(printBtn){
+        printBtn.addEventListener('click', () => window.print());
+      }
+
+      // mobile nav toggle (safe)
+      const hambtn = $id('hambtn');
+      const mainNav = $id('main-nav');
+      if(hambtn && mainNav){
+        hambtn.addEventListener('click', ()=>{
+          const isVisible = mainNav.getAttribute('data-visible') === 'true';
+          if(!isVisible){
+            mainNav.style.display = 'flex';
+            mainNav.style.flexDirection = 'column';
+            mainNav.style.position = 'absolute';
+            mainNav.style.right = '6%';
+            mainNav.style.top = '64px';
+            mainNav.style.background = 'white';
+            mainNav.style.padding = '12px';
+            mainNav.style.borderRadius = '10px';
+            mainNav.style.boxShadow = '0 12px 36px rgba(16,18,37,0.12)';
+            mainNav.setAttribute('data-visible','true');
+            hambtn.setAttribute('aria-expanded','true');
+          } else {
+            mainNav.style.display = '';
+            mainNav.style.flexDirection = '';
+            mainNav.style.position = '';
+            mainNav.style.right = '';
+            mainNav.style.top = '';
+            mainNav.style.background = '';
+            mainNav.style.padding = '';
+            mainNav.style.borderRadius = '';
+            mainNav.style.boxShadow = '';
+            mainNav.setAttribute('data-visible','false');
+            hambtn.setAttribute('aria-expanded','false');
+          }
+        });
+      }
+
+      // Accessibility: set tabindex for key controls if present
+      ['semester','search','exportCSV','print'].forEach(id => {
+        const el = $id(id);
+        if(el) el.tabIndex = 0;
+      });
+
+      // Animate progress bars on load (safe)
+      window.requestAnimationFrame(()=> {
+        document.querySelectorAll('.progress').forEach(p => {
+          const w = p.style.width || '0%';
+          p.style.width = '0%';
+          setTimeout(()=> { p.style.width = w; }, 120);
+        });
+      });
+    }); // DOMContentLoaded
+  </script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Attendance Dashboard</title>
+  <style>
+    :root{
+      --accent:#4d8bff;
+      --accent-2:#7683ff;
+      --bg-start:#eaf2ff;
+      --bg-end:#f8faff;
+      --glass: rgba(255,255,255,0.92);
+      --muted:#6b7082;
+      --text:#101225;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,system-ui,Arial,sans-serif}
+    html,body{height:100%}
+    body{
+      min-height:100vh;
+      background:radial-gradient(circle at top left,var(--bg-start),var(--bg-end));
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+    }
+
+    /* HEADER + NAV */
+    header.site-header{
+      width:100%;
+      position:fixed;
+      top:0;
+      left:0;
+      z-index:60;
+      background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(250,252,255,0.86));
+      padding:12px 6%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid rgba(16,18,37,0.04);
+      backdrop-filter: blur(6px);
+    }
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px}
+    .brand .logo{
+      width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;font-weight:800;
+      box-shadow:0 8px 22px rgba(77,139,255,0.14)
+    }
+
+    nav#main-nav{display:flex;align-items:center;gap:18px}
+    nav#main-nav a{
+      text-decoration:none;color:var(--text);font-weight:600;padding:8px 10px;border-radius:8px;transition:all .16s;
+    }
+    nav#main-nav a:hover{background:rgba(16,18,37,0.03)}
+    nav#main-nav a.active{color:var(--accent);border-bottom:3px solid var(--accent);padding-bottom:6px}
+
+    /* mobile hamburger */
+    .hamburger{display:none;background:transparent;border:0;padding:8px;border-radius:8px;cursor:pointer}
+    .hamburger svg{width:22px;height:22px}
+
+    /* container */
+    .page-wrap{width:100%;max-width:1100px;margin:0 auto;padding:140px 3% 80px;flex:1}
+
+    .container{
+      border-radius:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(250,252,255,0.96));
+      box-shadow:0 30px 80px rgba(16,18,37,0.10);
+      padding:22px;
+      border:1px solid rgba(16,18,37,0.04);
+    }
+
+    /* Header inside container */
+    .header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:16px;
+      flex-wrap:wrap;
+    }
+    .title h1{font-size:20px;margin-bottom:6px}
+    .title p{font-size:13px;color:var(--muted)}
+
+    /* controls */
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    select,input[type="search"],button{padding:10px 12px;border-radius:10px;border:1px solid rgba(16,18,37,0.06);background:white;font-size:13px}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;border:none;cursor:pointer;box-shadow:0 10px 28px rgba(77,139,255,0.18)}
+    .btn-ghost{background:transparent;border:1px solid rgba(16,18,37,0.06);cursor:pointer}
+
+    /* layout */
+    .layout{display:grid;grid-template-columns:320px 1fr;gap:22px;align-items:start}
+    .summary{
+      background:var(--glass);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 18px 40px rgba(16,18,37,0.06);
+      border:1px solid rgba(16,18,37,0.04);
+    }
+    .summary h3{margin-bottom:8px;font-size:15px}
+    .big-percent{
+      display:flex;align-items:center;gap:12px;justify-content:center;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:white;border-radius:12px;padding:16px;box-shadow:0 12px 30px rgba(77,139,255,0.18);
+      margin-bottom:12px;font-weight:800;font-size:28px;
+    }
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+    .stat{padding:12px;border-radius:10px;color:white;font-weight:700;text-align:left;box-shadow:0 8px 20px rgba(16,18,37,0.06)}
+    .present{background:linear-gradient(90deg,#3db86a,#2ea34a)}
+    .absent{background:linear-gradient(90deg,#ff6b6b,#ff5252)}
+    .hol{background:linear-gradient(90deg,#ffb74d,#ffa000);grid-column:1 / -1;text-align:center}
+
+    .details{
+      background:var(--glass);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:0 18px 40px rgba(16,18,37,0.06);
+      border:1px solid rgba(16,18,37,0.04);
+    }
+    .search-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    .subject-list{display:flex;flex-direction:column;gap:12px;max-height:60vh;overflow:auto;padding-right:6px}
+
+    .subject{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border-radius:12px;
+      background:white;border:1px solid rgba(16,18,37,0.04);box-shadow:0 8px 18px rgba(16,18,37,0.04);
+    }
+    .subject .left{display:flex;flex-direction:column;gap:6px}
+    .sub-title{font-weight:700}
+    .sub-meta{font-size:13px;color:var(--muted)}
+
+    .progressbar{width:360px;height:10px;border-radius:999px;background:#eef4ff;overflow:hidden}
+    .progress{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px;transition:width 600ms ease}
+
+    .footer-note{font-size:13px;color:var(--muted);margin-top:12px}
+
+    /* tiny helpers */
+    .muted{color:var(--muted);font-size:13px}
+    .tiny{font-size:12px;color:var(--muted)}
+
+    /* responsive */
+    @media(max-width:960px){
+      .layout{grid-template-columns:1fr;gap:14px}
+      .progressbar{width:220px}
+      nav#main-nav{display:none}
+      .hamburger{display:inline-flex}
+    }
+    @media(max-width:520px){
+      .progressbar{width:150px}
+      .big-percent{font-size:22px;padding:12px}
+      header.site-header{padding:10px 4%}
+      .brand{font-size:16px}
+    }
+    /* small scrollbar style for subject list */
+    .subject-list::-webkit-scrollbar{width:8px}
+    .subject-list::-webkit-scrollbar-thumb{background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:8px}
+  </style>
+</head>
+<body>
+  <!-- SITE HEADER WITH NAV -->
+  <header class="site-header" role="banner">
+    <div class="brand" aria-hidden="false">
+      <div class="logo" aria-hidden="true">S</div>
+      <div>
+        <div>Student Portal</div>
+        <div class="tiny muted">Welcome back</div>
+      </div>
+    </div>
+
+     <nav id="main-nav" aria-label="Main navigation">
+        <a href="login.html" data-action="login" class="nav-link active">LogIn</a>
+      <a href="home.html" data-action="home" class="nav-link active">Home</a>
+      <a href="courses.html" data-action="courses" class="nav-link">Courses</a>
+      <a href="attendence.html" data-action="attendance" class="nav-link">Attendance</a>
+      <a href="result.html" data-action="results" class="nav-link">Results</a>
+      <a href="dashboard.html" data-action="results" class="nav-link active">Dashboard</a>
+    </nav>
+
+    <!-- hamburger for mobile -->
+    <button class="hamburger" id="hambtn" aria-label="Open navigation" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7h18M3 12h18M3 17h18" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- page content -->
+  <div class="page-wrap" role="main">
+    <div class="container" role="application" aria-label="Attendance dashboard">
+      <div class="header">
+        <div class="title">
+          <h1>Attendance Dashboard</h1>
+          <p class="muted">Overview of your attendance by subject. Use filters or export the data.</p>
+        </div>
+
+        <div class="controls" aria-hidden="false">
+          <label for="month" class="tiny muted" style="align-self:center">Month</label>
+          <select id="month" aria-label="Select month">
+            <option value="all">All months</option>
+            <option value="2025-11">Nov 2025</option>
+            <option value="2025-10">Oct 2025</option>
+            <option value="2025-09">Sep 2025</option>
+          </select>
+
+          <input id="search" type="search" placeholder="Search subject or teacher..." aria-label="Search subjects">
+          <button id="export" class="btn-primary" aria-label="Export CSV">Export CSV</button>
+          <button id="trend" class="btn-ghost" aria-pressed="false">Toggle Trend</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <!-- LEFT SUMMARY -->
+        <aside class="summary" aria-labelledby="summary-heading">
+          <h3 id="summary-heading">Summary</h3>
+          <div class="big-percent" id="overall">92%</div>
+
+          <div class="stat-grid" aria-hidden="false">
+            <div class="stat present"><div id="presentCount">124</div><small class="tiny">Present Days</small></div>
+            <div class="stat absent"><div id="absentCount">11</div><small class="tiny">Absent Days</small></div>
+            <div class="stat hol"><div id="holCount">6</div><small class="tiny">Holidays</small></div>
+          </div>
+
+          <div style="margin-top:12px" class="footer-note">Click a subject on the right to view details (expandable in next update).</div>
+        </aside>
+
+        <!-- RIGHT DETAILS -->
+        <section class="details" aria-labelledby="details-heading">
+          <h4 id="details-heading">Subject-wise Attendance</h4>
+
+          <div class="search-row">
+            <div class="muted">Legend: ● Present · Absent · Holiday</div>
+          </div>
+
+          <div class="subject-list" id="subjectList" role="list" aria-live="polite">
+            <!-- JS will populate -->
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // demo attendance data
+    const attendanceData = {
+      meta: {present:124, absent:11, holidays:6, overallPercent:92},
+      subjects: [
+        { id:'math', title:'Mathematics', present:44, total:50, percent:88, teacher:'Dr. L. Iyer' },
+        { id:'web', title:'Web Development', present:47, total:50, percent:94, teacher:'Ms. Sneha Kumari' },
+        { id:'db', title:'Database Systems', present:41, total:45, percent:91, teacher:'Mr. Arun Patel' },
+        { id:'ml', title:'Machine Learning', present:40, total:45, percent:89, teacher:'Dr. K. Sharma' },
+        { id:'os', title:'Operating Systems', present:43, total:47, percent:91.5, teacher:'Prof. R. Gupta' },
+        { id:'discrete', title:'Discrete Mathematics', present:39, total:43, percent:90.7, teacher:'Dr. L. Iyer' }
+      ]
+    };
+
+    // populate summary
+    document.getElementById('overall').textContent = attendanceData.meta.overallPercent + '%';
+    document.getElementById('presentCount').textContent = attendanceData.meta.present;
+    document.getElementById('absentCount').textContent = attendanceData.meta.absent;
+    document.getElementById('holCount').textContent = attendanceData.meta.holidays;
+
+    // render subjects list
+    const listEl = document.getElementById('subjectList');
+    function render(list){
+      listEl.innerHTML = '';
+      if(!list.length){
+        const empty = document.createElement('div');
+        empty.className = 'tiny muted';
+        empty.textContent = 'No subjects found.';
+        listEl.appendChild(empty);
+        return;
+      }
+      list.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'subject';
+        el.tabIndex = 0;
+        el.setAttribute('role','listitem');
+        el.innerHTML = `
+          <div class="left">
+            <div class="sub-title">${s.title}</div>
+            <div class="sub-meta">${s.teacher} • ${s.present}/${s.total} days</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div style="font-weight:700">${Math.round(s.percent)}%</div>
+            <div class="progressbar" aria-hidden="true"><div class="progress" style="width:${Math.max(0,Math.min(100,s.percent))}%"></div></div>
+          </div>
+        `;
+        // optional: expand to show more info on click (demo)
+        el.addEventListener('click', ()=> {
+          alert(`${s.title}\nTeacher: ${s.teacher}\nPresent: ${s.present}\nTotal: ${s.total}\nPercent: ${s.percent}%`);
+        });
+        listEl.appendChild(el);
+      });
+    }
+    render(attendanceData.subjects);
+
+    // search
+    document.getElementById('search').addEventListener('input', e=>{
+      const q = e.target.value.trim().toLowerCase();
+      const filtered = attendanceData.subjects.filter(s => s.title.toLowerCase().includes(q) || s.teacher.toLowerCase().includes(q));
+      render(filtered);
+    });
+
+    // month selector (demo behavior)
+    document.getElementById('month').addEventListener('change', e=>{
+      const v = e.target.value;
+      if(v === 'all') render(attendanceData.subjects);
+      else {
+        // demo: rotate list for different months (replace with real filter)
+        const copy = attendanceData.subjects.slice();
+        copy.push(copy.shift());
+        render(copy);
+      }
+    });
+
+    // export CSV
+    function toCSV(data){
+      const rows = [['Subject','Teacher','Present','Total','Percent']];
+      data.forEach(s => rows.push([s.title, s.teacher, s.present, s.total, s.percent]));
+      return rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    }
+    document.getElementById('export').addEventListener('click', ()=>{
+      const csv = toCSV(attendanceData.subjects);
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'attendance.csv';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    // toggle trend (simple demo animation)
+    let trend = false;
+    document.getElementById('trend').addEventListener('click', ()=>{
+      trend = !trend;
+      document.querySelectorAll('.progress').forEach(p => {
+        if(trend){
+          p.style.transition = 'width 900ms cubic-bezier(.2,.9,.27,1)';
+          const current = parseFloat(p.style.width) || 0;
+          p.style.width = Math.min(100, current * 1.02) + '%';
+        } else {
+          p.style.transition = 'none';
+        }
+      });
+      document.getElementById('trend').textContent = trend ? 'Hide Trend' : 'Toggle Trend';
+      document.getElementById('trend').setAttribute('aria-pressed', String(trend));
+    });
+
+    // mobile nav toggle
+    const hambtn = document.getElementById('hambtn');
+    const mainNav = document.getElementById('main-nav');
+    hambtn && hambtn.addEventListener('click', ()=>{
+      const open = mainNav.style.display !== 'flex';
+      mainNav.style.display = open ? 'flex' : 'none';
+      mainNav.style.flexDirection = 'column';
+      mainNav.style.position = 'absolute';
+      mainNav.style.right = '6%';
+      mainNav.style.top = '64px';
+      mainNav.style.background = 'white';
+      mainNav.style.padding = '12px';
+      mainNav.style.borderRadius = '10px';
+      mainNav.style.boxShadow = '0 12px 36px rgba(16,18,37,0.12)';
+      hambtn.setAttribute('aria-expanded', String(open));
+    });
+
+    // keyboard accessibility: close menu on Escape
+    document.addEventListener('keydown', e=>{
+      if(e.key === 'Escape' && mainNav.style.display === 'flex' && window.innerWidth <= 960){
+        mainNav.style.display = 'none';
+        hambtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // ensure interactive items are tabbable
+    ['month','search','export','trend'].forEach(id => { const el = document.getElementById(id); if(el) el.tabIndex = 0; });
+  </script>
+</body>
+</html>

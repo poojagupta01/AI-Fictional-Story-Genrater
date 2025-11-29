@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Courses — Student Portal</title>
+  <style>
+    /* ====== Design tokens ====== */
+    :root{
+      --bg-1: #f3f7ff;
+      --card-bg: #ffffff;
+      --accent: #2456d9;
+      --accent-2: #3e7bff;
+      --muted: #6b7082;
+      --text: #0f1622;
+      --radius: 12px;
+      --gap: 16px;
+      --max-width: 1100px;
+    }
+
+    /* ====== Base ====== */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg-1),#fff);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.38;
+    }
+    a{color:inherit}
+
+    /* ====== Page layout ====== */
+    header{
+      position:sticky;top:0;background:rgba(255,255,255,0.9);backdrop-filter:blur(6px);
+      border-bottom:1px solid rgba(15,20,30,0.05);
+    }
+    .header-inner{
+      max-width:var(--max-width);margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:18px;
+      justify-content:space-between;
+    }
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand .logo{
+      display:none;
+    }
+    nav{display:flex;gap:12px;align-items:center}
+    nav a{padding:8px 10px;border-radius:8px;font-weight:600;text-decoration:none;color:var(--muted);font-size:14px}
+    nav a.active{color:var(--accent);border-bottom:3px solid var(--accent);padding-bottom:6px}
+
+    main{max-width:var(--max-width);margin:24px auto;padding:0 20px 80px;display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
+    @media (max-width:980px){ main{grid-template-columns:1fr} nav{display:none} }
+
+    /* ====== Toolbar ====== */
+    .toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+    .search{
+      display:flex;gap:8px;align-items:center;
+      background:var(--card-bg);padding:8px;border-radius:10px;border:1px solid rgba(15,20,30,0.04);
+      box-shadow:0 6px 18px rgba(15,20,30,0.03);
+    }
+    .search input{border:0;outline:0;padding:8px 6px;font-size:14px;background:transparent;width:300px}
+    .controls{display:flex;gap:8px;align-items:center}
+    select, button{padding:9px 12px;border-radius:10px;border:1px solid rgba(15,20,30,0.06);background:#fff;font-size:14px}
+    button.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border:none}
+    button.ghost{background:transparent}
+
+    /* ====== Grid ====== */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media (max-width:1100px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:680px){ .grid{grid-template-columns:1fr} }
+
+    /* ====== Card (clean & systematic) ====== */
+    .card{
+      background:var(--card-bg);border-radius:var(--radius);padding:14px;border:1px solid rgba(15,20,30,0.04);
+      display:flex;flex-direction:column;gap:10px;min-height:170px;transition:transform .16s,box-shadow .16s;
+    }
+    .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(15,20,30,0.06)}
+    .card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .code{font-weight:700;color:var(--accent);font-size:13px;padding:6px 8px;border-radius:8px;background:rgba(36,86,217,0.06)}
+    .title{font-weight:700;font-size:15px;margin-top:4px}
+    .meta{font-size:13px;color:var(--muted)}
+    .desc{font-size:14px;color:#2a3340;margin-top:6px}
+
+    .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .tag{font-size:12px;color:var(--muted);padding:6px 8px;border-radius:999px;background:rgba(15,20,30,0.03)}
+
+    .card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}
+    .actions{display:flex;gap:8px}
+    .btn-small{padding:8px 10px;border-radius:8px;border:1px solid rgba(15,20,30,0.06);background:#fff;font-weight:700;cursor:pointer}
+    .btn-enroll{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;border:none}
+
+    /* ====== Sidebar (neat summary) ====== */
+    aside.summary{background:var(--card-bg);padding:16px;border-radius:12px;border:1px solid rgba(15,20,30,0.04)}
+    aside .h{font-weight:700;margin-bottom:8px}
+    .stat{display:flex;justify-content:space-between;padding:8px 0;border-top:1px dashed rgba(15,20,30,0.03)}
+    .stat:first-of-type{border-top:0;padding-top:0}
+
+    /* ====== Modal ====== */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.45);z-index:120}
+    .modal.active{display:flex}
+    .modal-card{width:min(900px,96%);max-height:88vh;overflow:auto;background:#fff;border-radius:12px;padding:18px;border:1px solid rgba(15,20,30,0.06)}
+    .modal-close{float:right;border:0;background:transparent;font-size:18px;cursor:pointer}
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    ul.clean{margin:8px 0 0 18px;padding:0}
+    .center{display:flex;justify-content:center;align-items:center}
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <!-- Logo removed -->
+        <div style="font-weight:800;font-size:16px">Student Portal</div>
+        
+      </div>
+
+       <nav id="main-nav" aria-label="Main navigation">
+        <a href="login.html" data-action="login" class="nav-link active">LogIn</a>
+      <a href="home.html" data-action="home" class="nav-link active">Home</a>
+      <a href="courses.html" data-action="courses" class="nav-link">Courses</a>
+      <a href="attendence.html" data-action="attendance" class="nav-link">Attendance</a>
+      <a href="result.html" data-action="results" class="nav-link">Results</a>
+      <a href="dashboard.html" data-action="results" class="nav-link active">Dashboard</a>
+    </nav>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <!-- content -->
+    <section>
+      <div class="toolbar" role="toolbar" aria-label="Course controls">
+        <div class="search" role="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.7"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          <input id="q" type="search" placeholder="Search courses, instructor or code" aria-label="Search courses">
+        </div>
+
+        <div class="controls">
+          <select id="filterTag" aria-label="Filter by tag">
+            <option value="all">All tags</option>
+          </select>
+          <select id="sort" aria-label="Sort">
+            <option value="relevance">Sort: Relevance</option>
+            <option value="credits">Sort: Credits (high → low)</option>
+            <option value="duration">Sort: Duration (long → short)</option>
+          </select>
+          <button class="btn ghost" id="clear">Clear</button>
+          <button class="btn primary" id="export">Export Selected</button>
+        </div>
+      </div>
+
+      <!-- grid -->
+      <div class="grid" id="grid" aria-live="polite"></div>
+
+      <div style="margin-top:14px" class="muted">Click a course card to expand details. Use "View" for full syllabus.</div>
+    </section>
+
+    <!-- sidebar -->
+    <aside class="summary" aria-labelledby="summaryHeading">
+      <div id="summaryHeading" class="h">Catalog Summary</div>
+      <div class="stat"><div class="muted">Total courses</div><div id="totalCourses">0</div></div>
+      <div class="stat"><div class="muted">Core courses</div><div id="coreCount">0</div></div>
+      <div class="stat"><div class="muted">Electives</div><div id="electiveCount">0</div></div>
+      <div class="stat"><div class="muted">Average credits</div><div id="avgCredits">0</div></div>
+    </aside>
+  </main>
+
+  <!-- Modal for full details -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card" role="document">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ====== Data (same structured list; replace or extend as needed) ====== */
+    const courses = [
+      { id:'cs101', code:'CS101', title:'Introduction to Programming', instructor:'Dr. Meera Rao', credits:4, durationWeeks:12, duration:'12 weeks', tags:['Core','Programming'], short:'Python basics and project-driven practice.', syllabus:['Variables & types','Control flow','Functions','Data structures','Project'], outcomes:['Write programs','Basic algorithms'], prerequisites:[], assessment:['Assignments 40%','Project 30%','Exam 30%']},
+      { id:'math110', code:'MATH110', title:'Discrete Mathematics', instructor:'Dr. L. Iyer', credits:3, durationWeeks:10, duration:'10 weeks', tags:['Core','Mathematics'], short:'Logic, sets, combinatorics & graphs.', syllabus:['Logic','Sets & relations','Combinatorics','Graphs','Proofs'], outcomes:['Formal proofs','Graph modeling'], prerequisites:[], assessment:['Quizzes 20%','Exam 80%']},
+      { id:'web301', code:'WEB301', title:'Web Development', instructor:'Ms. Sneha Kumari', credits:3, durationWeeks:12, duration:'12 weeks', tags:['Elective','Practical'], short:'HTML, CSS, JS and deployment.', syllabus:['HTML','CSS','JS DOM','Responsive','Deploy'], outcomes:['Build responsive sites'], prerequisites:['Basic programming'], assessment:['Labs 50%','Project 30%','Exam 20%']},
+      { id:'db201', code:'DB201', title:'Database Systems', instructor:'Mr. Arun Patel', credits:3, durationWeeks:10, duration:'10 weeks', tags:['Core','Databases'], short:'Relational design, SQL and transactions.', syllabus:['ER modeling','SQL','Normalization','Transactions','Project'], outcomes:['Design DB','Write SQL'], prerequisites:['CS101'], assessment:['Assignments 40%','Project 30%','Exam 30%']},
+      { id:'ml401', code:'ML401', title:'Machine Learning', instructor:'Dr. K. Sharma', credits:4, durationWeeks:14, duration:'14 weeks', tags:['Elective','AI'], short:'Supervised & unsupervised methods and project.', syllabus:['Linear models','Trees','Clustering','Evaluation','Project'], outcomes:['Train models','Evaluate models'], prerequisites:['Math/Stats','Programming'], assessment:['Assignments 30%','Project 40%','Exam 30%']},
+      { id:'os101', code:'OS101', title:'Operating Systems', instructor:'Prof. R. Gupta', credits:3, durationWeeks:10, duration:'10 weeks', tags:['Core','Systems'], short:'Processes, memory, scheduling & files.', syllabus:['Processes','Scheduling','Memory','File systems','Concurrency'], outcomes:['Explain OS','Analyze scheduling'], prerequisites:['Computer Architecture'], assessment:['Labs 30%','Exam 70%']}
+    ];
+
+    /* ====== State ====== */
+    let selected = new Set();
+    let q = '';
+    let filterTag = 'all';
+    let sortBy = 'relevance';
+
+    /* ====== Helpers ====== */
+    const grid = document.getElementById('grid');
+    const filterTagEl = document.getElementById('filterTag');
+    const totalCoursesEl = document.getElementById('totalCourses');
+    const coreCountEl = document.getElementById('coreCount');
+    const electiveCountEl = document.getElementById('electiveCount');
+    const avgCreditsEl = document.getElementById('avgCredits');
+
+    function formatCard(c){
+      return `
+        <div class="card" data-id="${c.id}" tabindex="0" aria-labelledby="${c.id}-title">
+          <div class="card-head">
+            <div>
+              <div class="code">${c.code}</div>
+              <div id="${c.id}-title" class="title">${c.title}</div>
+              <div class="meta">${c.instructor} • ${c.duration} • ${c.credits} cr</div>
+            </div>
+            <div>
+              <div style="text-align:right" class="muted">${c.tags.join(', ')}</div>
+            </div>
+          </div>
+
+          <div class="desc">${c.short}</div>
+
+          <div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+
+          <div class="card-footer">
+            <div>
+              <label style="display:inline-flex;gap:8px;align-items:center">
+                <input type="checkbox" class="sel" data-id="${c.id}">
+                <span class="muted small">Select</span>
+              </label>
+            </div>
+            <div class="actions">
+              <button class="btn-small view" data-id="${c.id}">View</button>
+              <button class="btn-small btn-enroll enroll" data-id="${c.id}">Enroll</button>
+            </div>
+          </div>
+
+          <div class="details" style="display:none;margin-top:10px">
+            <div style="font-weight:700;margin-bottom:6px">Syllabus</div>
+            <ul class="clean">${c.syllabus.map(s=>`<li>${s}</li>`).join('')}</ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function uniqueTags(){
+      const s = new Set();
+      courses.forEach(c => c.tags.forEach(t => s.add(t)));
+      return Array.from(s).sort();
+    }
+
+    /* ====== Render ====== */
+    function renderFilterOptions(){
+      const tags = uniqueTags();
+      filterTagEl.innerHTML = '<option value="all">All tags</option>' + tags.map(t=>`<option value="${t}">${t}</option>`).join('');
+    }
+
+    function getFiltered(){
+      let list = courses.filter(c=>{
+        if(filterTag !== 'all' && !c.tags.includes(filterTag)) return false;
+        if(q){
+          const s = q.toLowerCase();
+          if(!(c.title.toLowerCase().includes(s) || c.instructor.toLowerCase().includes(s) || c.code.toLowerCase().includes(s) || c.tags.join(' ').toLowerCase().includes(s))) return false;
+        }
+        return true;
+      });
+
+      if(sortBy === 'credits') list.sort((a,b)=>b.credits - a.credits);
+      else if(sortBy === 'duration') list.sort((a,b)=>b.durationWeeks - a.durationWeeks);
+
+      return list;
+    }
+
+    function renderGrid(){
+      const list = getFiltered();
+      grid.innerHTML = list.map(formatCard).join('');
+      attachCardHandlers();
+      updateSummary();
+    }
+
+    function updateSummary(){
+      totalCoursesEl.textContent = courses.length;
+      coreCountEl.textContent = courses.filter(c=>c.tags.includes('Core')).length;
+      electiveCountEl.textContent = courses.filter(c=>c.tags.includes('Elective')).length;
+      avgCreditsEl.textContent = (courses.reduce((s,c)=>s+c.credits,0)/courses.length).toFixed(1);
+    }
+
+    function attachCardHandlers(){
+      document.querySelectorAll('.card').forEach(card=>{
+        const id = card.dataset.id;
+        const details = card.querySelector('.details');
+        card.addEventListener('click', (e)=>{
+          if(e.target.closest('button') || e.target.closest('input')) return;
+          const open = details.style.display === 'block';
+          details.style.display = open ? 'none' : 'block';
+        });
+        card.addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' ') card.click(); });
+
+        // checkbox
+        const cb = card.querySelector('.sel');
+        cb.addEventListener('change', (ev)=>{
+          if(cb.checked) selected.add(id); else selected.delete(id);
+        });
+
+        // view modal
+        card.querySelector('.view').addEventListener('click', (ev)=>{
+          ev.stopPropagation();
+          openModal(id);
+        });
+
+        // enroll
+        card.querySelector('.enroll').addEventListener('click', (ev)=>{
+          ev.stopPropagation();
+          alert('Enroll flow (demo) for ' + id);
+        });
+      });
+    }
+
+    /* ====== Modal ====== */
+    const modal = document.getElementById('modal');
+    const modalBody = document.getElementById('modalBody');
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+
+    function openModal(id){
+      const c = courses.find(x=>x.id===id);
+      if(!c) return;
+      modalBody.innerHTML = `
+        <h2 style="margin:0 0 6px">${c.title} <small style="color:${'var(--muted)'}"> — ${c.code}</small></h2>
+        <div style="margin-bottom:8px" class="muted">${c.instructor} • ${c.duration} • ${c.credits} credits</div>
+        <p style="margin:6px 0">${c.short}</p>
+        <h3 style="margin:12px 0 6px">Syllabus</h3>
+        <ol class="clean">${c.syllabus.map(s=>`<li>${s}</li>`).join('')}</ol>
+        <h3 style="margin:12px 0 6px">Learning Outcomes</h3>
+        <ul class="clean">${(c.outcomes || []).map(s=>`<li>${s}</li>`).join('')}</ul>
+        <h3 style="margin:12px 0 6px">Assessment</h3>
+        <div class="muted">${(c.assessment || []).join(' • ')}</div>
+        <div style="margin-top:14px" class="center">
+          <button class="btn-small" id="modalEnrollBtn">Enroll</button>
+          <button class="btn-small" style="margin-left:8px" id="modalCloseBtn">Close</button>
+        </div>
+      `;
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden','false');
+
+      document.getElementById('modalEnrollBtn').addEventListener('click', ()=>alert('Enroll flow for ' + id));
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    }
+
+    function closeModal(){
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden','true');
+    }
+
+    /* ====== Control wiring ====== */
+    document.getElementById('q').addEventListener('input', (e)=>{ q = e.target.value.trim(); renderGrid(); });
+    filterTagEl.addEventListener('change', (e)=>{ filterTag = e.target.value; renderGrid(); });
+    document.getElementById('sort').addEventListener('change', (e)=>{ sortBy = e.target.value; renderGrid(); });
+    document.getElementById('clear').addEventListener('click', ()=>{
+      selected.clear(); q=''; filterTag='all'; sortBy='relevance';
+      document.getElementById('q').value=''; document.getElementById('sort').value='relevance'; renderGrid();
+    });
+
+    document.getElementById('export').addEventListener('click', ()=>{
+      const data = courses.filter(c=>selected.has(c.id));
+      if(!data.length){ alert('No courses selected.'); return; }
+      const csv = [
+        ['Code','Title','Instructor','Credits','Duration','Tags'].join(',')
+      ].concat(data.map(d=>[d.code, `"${d.title.replace(/"/g,'""')}"`, d.instructor, d.credits, d.duration, `"${d.tags.join(';')}"`].join(','))).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'courses_selected.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    /* ====== Initialize ====== */
+    (function init(){
+      const tags = uniqueTags();
+      filterTagEl.innerHTML = '<option value="all">All tags</option>' + tags.map(t=>`<option value="${t}">${t}</option>`).join('');
+      renderGrid();
+    })();
+  </script>
+</body>
+</html>
